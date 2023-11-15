@@ -5,7 +5,7 @@ import transformers
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
 parser = argparse.ArgumentParser('|llama模型预测|')
-parser.add_argument('--model_path', default='chinese-alpaca-2-7b', type=str, help='|模型文件夹位置(合并后的模型)|')
+parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
 parser.add_argument('--device', default='cpu', type=str, help='|设备|')
 args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
 
@@ -26,16 +26,16 @@ class llama_class:
         # 验证
         assert len(self.tokenizer) == self.model.vocab_size  # 检查模型和文本编码是否匹配
         # 输入提示词模版
-        self.template = ('[INST] <<SYS>>\n'
-                         '{prompt}\n'
-                         '<</SYS>>\n\n'
-                         '{instruction} [/INST]')  # 对话模型的输入需要经过特殊的处理
+        self.template = '[INST] <<SYS>>\n{prompt}\n<</SYS>>\n\n{instruction} [/INST]'  # 对话模型的输入需要经过特殊的处理
         self.prompt = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 提示词
+        self.template_add = '{answer}</s><s>[INST] {instruction} [/INST]'
+        self.record = 0
+        self.record_list = []
 
     def predict(self, text):  # 输入字符串
         with torch.no_grad():
-            text_deal = self.template.format(prompt=self.prompt, instruction=text)
-            text_dict = self.tokenizer(text_deal, return_tensors="pt")
+            text_merge = self.template.format(prompt=self.prompt, instruction=text)
+            text_dict = self.tokenizer(text_merge, return_tensors='pt')
             input_ids = text_dict["input_ids"].to(self.device)
             attention_mask = text_dict['attention_mask'].to(self.device)
             pred = self.model.generate(input_ids=input_ids, attention_mask=attention_mask,
