@@ -1,0 +1,3 @@
+# torch：https://pytorch.org/get-started/previous-versions/
+# pip install transformers -i https://pypi.tuna.tsinghua.edu.cn/simple
+# pip install ... -i https://pypi.tuna.tsinghua.edu.cn/simple
