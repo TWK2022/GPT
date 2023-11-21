@@ -16,7 +16,7 @@ from block.train_get import train_get
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
 parser = argparse.ArgumentParser(description='|llama类大模型微调:peft模型训练|')
-parser.add_argument('--data_path', default=r'data.json', type=str, help='|sft(.json)数据路径|')
+parser.add_argument('--data_path', default=r'data_demo.json', type=str, help='|sft(.json)数据路径|')
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str,
                     help='|原模型的tokenizer和模型文件夹位置|')
 parser.add_argument('--weight', default='last.pt', type=str,
