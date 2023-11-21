@@ -32,14 +32,15 @@ class llama_class:
         self.record = 0
         self.record_list = []
 
-    def predict(self, text):  # 输入字符串
+    def predict(self, text, generation_config=None):  # 输入字符串
+        generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
             text_merge = self.template.format(prompt=self.prompt, instruction=text)
             text_dict = self.tokenizer(text_merge, return_tensors='pt')
             input_ids = text_dict["input_ids"].to(self.device)
             attention_mask = text_dict['attention_mask'].to(self.device)
             pred = self.model.generate(input_ids=input_ids, attention_mask=attention_mask,
-                                       generation_config=self.generation_config)
+                                       generation_config=generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
             result = result.split("[/INST]")[-1].strip()
         return result
