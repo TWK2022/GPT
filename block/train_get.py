@@ -1,7 +1,7 @@
 import tqdm
 import torch
-from block.lr_get import adam
 from block.ModelEMA import ModelEMA
+from block.lr_get import adam, lr_adjust
 
 
 def train_get(args, data_dict, model_dict):
@@ -9,6 +9,9 @@ def train_get(args, data_dict, model_dict):
     model = model_dict['model'].to(args.device, non_blocking=args.latch)
     # 学习率
     optimizer = adam(args.regularization, args.r_value, model.parameters(), lr=args.lr_start, betas=(0.937, 0.999))
+    optimizer.load_state_dict(model_dict['optimizer_state_dict']) if model_dict['optimizer_state_dict'] else None
+    optimizer_adjust = lr_adjust(args, model_dict['lr_adjust_item'])  # 学习率调整函数
+    optimizer = optimizer_adjust(optimizer, model_dict['epoch'] + 1, 0)  # 初始化学习率
     # 使用平均指数移动(EMA)调整参数(不能将ema放到args中，否则会导致模型保存出错)
     ema = ModelEMA(model) if args.ema else None
     if args.ema:
@@ -23,7 +26,8 @@ def train_get(args, data_dict, model_dict):
     # 分布式初始化
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
                                                       output_device=args.local_rank) if args.distributed else model
-    for epoch in range(1, args.epoch + 1):
+    epoch_base = model_dict['epoch'] + 1  # 新的一轮要+1
+    for epoch in range(epoch_base, epoch_base + args.epoch):
         # 训练
         print(f'\n-----------------------第{epoch}轮-----------------------') if args.local_rank == 0 else None
         model.train()
@@ -63,15 +67,24 @@ def train_get(args, data_dict, model_dict):
         # 计算平均损失
         train_loss = train_loss / (item + 1)
         print('\n| train_loss:{:.4f} | lr:{:.6f} |\n'.format(train_loss, optimizer.param_groups[0]['lr']))
+        # 调整学习率
+        optimizer = optimizer_adjust(optimizer, epoch + 1, train_loss)
         # 清理显存空间
         del input_ids_batch, attention_mask_batch, label_batch, pred_batch, loss_batch
         torch.cuda.empty_cache()
         # 保存
         if args.local_rank == 0:  # 分布式时只保存一次
-            if epoch % 1 == 0:
-                save_name = f'save_epoch_{epoch}'
+            model_dict['model'] = model.module if args.distributed else model
+            model_dict['epoch'] = epoch
+            model_dict['optimizer_state_dict'] = optimizer.state_dict()
+            model_dict['lr_adjust_item'] = optimizer_adjust.lr_adjust_item
+            model_dict['ema_updates'] = ema.updates if args.ema else model_dict['ema_updates']
+            if epoch % 1 == 0:  # 保存peft模型
+                save_name = f'save_peft_{epoch}'
+                model_dict['model'].save_pretrained(save_name)
                 model_dict['tokenizer'].save_pretrained(save_name)
-                model.save_pretrained(save_name)
+            if args.save_pt != 0 and epoch % args.save_pt == 0:  # 保存完整模型
+                torch.save(model_dict, 'last.pt')
         torch.distributed.barrier() if args.distributed else None  # 分布式时每轮训练后让所有GPU进行同步，快的GPU会在此等待
 
 
