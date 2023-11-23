@@ -85,6 +85,9 @@ def train_get(args, data_dict, model_dict):
                 model_dict['tokenizer'].save_pretrained(save_name)
             if args.save_pt != 0 and epoch % args.save_pt == 0:  # 保存完整模型
                 torch.save(model_dict, 'last.pt')
+            # wandb
+            if args.wandb:
+                args.wandb_run.log({'metric/train_loss': train_loss})
         torch.distributed.barrier() if args.distributed else None  # 分布式时每轮训练后让所有GPU进行同步，快的GPU会在此等待
 
 
