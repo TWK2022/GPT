@@ -1,4 +1,5 @@
 import os
+import wandb
 import torch
 import argparse
 from block.data_get import data_get
@@ -8,6 +9,12 @@ from block.train_get import train_get
 # -------------------------------------------------------------------------------------------------------------------- #
 # 数据格式：sft格式
 # [{'instruction':'A','input':'B','output':'C'},...]
+# 多轮对话数据：
+# prompt='You are a helpful assistant. 你是一个乐于助人的助手。'
+# template='[INST] <<SYS>>\n{prompt}\n<</SYS>>\n\n{instruction} [/INST]'
+# text=template.format(prompt=prompt,instruction=instruction)
+# template_add=' {answer}</s><s>[INST] {instruction} [/INST]'
+# text=text+template_add.format(answer=answer,instruction=instruction)
 # -------------------------------------------------------------------------------------------------------------------- #
 # 分布式训练：
 # python -m torch.distributed.launch --master_port 9999 --nproc_per_node n run.py --distributed True
@@ -23,6 +30,9 @@ parser.add_argument('--weight', default='last.pt', type=str,
                     help='|会优先加载之前训练时保存的.pt模型继续训练，没有则新建peft再训练|')
 parser.add_argument('--save_pt', default=5, type=int,
                     help='|每几轮保存一次完整的last.pt模型以便中断后继续训练，0为不保存|')
+parser.add_argument('--wandb', default=False, type=bool, help='|是否使用wandb可视化|')
+parser.add_argument('--wandb_project', default='GPT', type=str, help='|wandb项目名称|')
+parser.add_argument('--wandb_name', default='train', type=str, help='|wandb项目中的训练名称|')
 parser.add_argument('--epoch', default=25, type=int, help='|训练轮数|')
 parser.add_argument('--batch', default=2, type=int, help='|训练批量大小|')
 parser.add_argument('--lr_start', default=0.00001, type=float,
@@ -55,6 +65,9 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.enabled = True
 # 训练前cuDNN会先搜寻每个卷积层最适合实现它的卷积算法，加速运行；但对于复杂变化的输入数据，可能会有过长的搜寻时间，对于训练比较快的网络建议设为False
 torch.backends.cudnn.benchmark = False
+# wandb可视化:https://wandb.ai
+if args.wandb and args.local_rank == 0:  # 分布式时只记录一次wandb
+    args.wandb_run = wandb.init(project=args.wandb_project, name=args.wandb_name, config=args)
 # 混合float16精度训练
 if args.amp:
     args.amp = torch.cuda.amp.GradScaler()
