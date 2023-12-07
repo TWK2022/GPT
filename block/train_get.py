@@ -44,16 +44,16 @@ def train_get(args, data_dict, model_dict):
                     pred_batch = model(input_ids=input_ids_batch, attention_mask=attention_mask_batch,
                                        labels=label_batch)
                     loss_batch = pred_batch.loss  # 当传入labels时模型内部会自动计算损失
-                optimizer.zero_grad()
                 args.amp.scale(loss_batch).backward()
                 args.amp.step(optimizer)
                 args.amp.update()
+                optimizer.zero_grad()
             else:
                 pred_batch = model(input_ids=input_ids_batch, attention_mask=attention_mask_batch, labels=label_batch)
                 loss_batch = pred_batch.loss  # 当传入labels时模型内部会自动计算损失
-                optimizer.zero_grad()
                 loss_batch.backward()
                 optimizer.step()
+                optimizer.zero_grad()
             # 调整参数，ema.updates会自动+1
             ema.update(model) if args.ema else None
             # 记录损失
