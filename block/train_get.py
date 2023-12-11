@@ -35,7 +35,7 @@ def train_get(args, data_dict, model_dict):
         tqdm_show = tqdm.tqdm(
             total=len(data_dict['train_input']) // args.batch // args.device_number * args.device_number, postfix=dict,
             mininterval=0.2) if args.local_rank == 0 else None  # tqdm
-        for item, (input_ids_batch, attention_mask_batch, label_batch) in enumerate(train_dataloader):
+        for index, (input_ids_batch, attention_mask_batch, label_batch) in enumerate(train_dataloader):
             input_ids_batch = input_ids_batch.to(args.device, non_blocking=args.latch)
             attention_mask_batch = attention_mask_batch.to(args.device, non_blocking=args.latch)
             label_batch = label_batch.to(args.device, non_blocking=args.latch)
@@ -65,7 +65,7 @@ def train_get(args, data_dict, model_dict):
         # tqdm
         tqdm_show.close() if args.local_rank == 0 else None
         # 计算平均损失
-        train_loss = train_loss / (item + 1)
+        train_loss = train_loss / (index + 1)
         print('\n| train_loss:{:.4f} | lr:{:.6f} |\n'.format(train_loss, optimizer.param_groups[0]['lr']))
         # 调整学习率
         optimizer = optimizer_adjust(optimizer, epoch + 1, train_loss)
