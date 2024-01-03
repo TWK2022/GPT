@@ -1,5 +1,6 @@
 import tqdm
 import torch
+from block.val_get import val_get
 from block.ModelEMA import ModelEMA
 from block.lr_get import adam, lr_adjust
 
@@ -23,6 +24,12 @@ def train_get(args, data_dict, model_dict):
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch, shuffle=train_shuffle,
                                                    drop_last=True, pin_memory=args.latch, num_workers=args.num_worker,
                                                    sampler=train_sampler, collate_fn=train_dataset.collate_fn)
+    val_dataset = torch_dataset(args, data_dict['val'], model_dict['tokenizer'])
+    val_sampler = None  # 分布式时数据合在主GPU上进行验证
+    val_batch = args.batch // args.device_number  # 分布式验证时batch要减少为一个GPU的量
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=val_batch, shuffle=False,
+                                                 drop_last=False, pin_memory=args.latch, num_workers=args.num_worker,
+                                                 sampler=val_sampler)
     # 分布式初始化
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
                                                       output_device=args.local_rank) if args.distributed else model
@@ -59,7 +66,7 @@ def train_get(args, data_dict, model_dict):
             train_loss += loss_batch.item()
             # tqdm
             if args.local_rank == 0:
-                tqdm_show.set_postfix({'loss': loss_batch.item()})  # 添加loss显示
+                tqdm_show.set_postfix({'train_loss': loss_batch.item()})  # 添加loss显示
                 tqdm_show.update(args.device_number)  # 更新进度条
         # tqdm
         if args.local_rank == 0:
@@ -73,6 +80,9 @@ def train_get(args, data_dict, model_dict):
         # 清理显存空间
         del input_ids_batch, attention_mask_batch, label_batch, pred_batch, loss_batch
         torch.cuda.empty_cache()
+        # 验证
+        if args.local_rank == 0:  # 分布式时只验证一次
+            val_loss = val_get(args, val_dataloader, model, data_dict, ema)
         # 保存
         if args.local_rank == 0:  # 分布式时只保存一次
             model_dict['model'] = model.module if args.distributed else model
@@ -80,6 +90,8 @@ def train_get(args, data_dict, model_dict):
             model_dict['optimizer_state_dict'] = optimizer.state_dict()
             model_dict['lr_adjust_index'] = optimizer_adjust.lr_adjust_index
             model_dict['ema_updates'] = ema.updates if args.ema else model_dict['ema_updates']
+            model_dict['train_loss'] = train_loss
+            model_dict['val_loss'] = val_loss
             if epoch % 1 == 0:  # 保存peft模型
                 save_name = f'save_peft_{epoch}'
                 model_dict['model'].save_pretrained(save_name)
@@ -88,7 +100,8 @@ def train_get(args, data_dict, model_dict):
                 torch.save(model_dict, 'last.pt')
             # wandb
             if args.wandb:
-                args.wandb_run.log({'metric/train_loss': train_loss})
+                args.wandb_run.log({'metric/train_loss': train_loss,
+                                    'metric/val_loss': val_loss})
         torch.distributed.barrier() if args.distributed else None  # 分布式时每轮训练后让所有GPU进行同步，快的GPU会在此等待
 
 
