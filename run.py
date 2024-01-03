@@ -24,6 +24,7 @@ from block.train_get import train_get
 # 设置
 parser = argparse.ArgumentParser(description='|llama类大模型微调:peft模型训练|')
 parser.add_argument('--data_path', default=r'data_demo.json', type=str, help='|sft(.json)数据路径|')
+parser.add_argument('--divide', default='9,1', type=str, help='|训练集和验证集划分比例|')
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|原模型位置|')
 parser.add_argument('--weight', default='last.pt', type=str, help='|已有模型的位置，没有则新建peft再训练|')
 parser.add_argument('--save_pt', default=5, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
@@ -35,7 +36,7 @@ parser.add_argument('--batch', default=2, type=int, help='|训练批量大小|')
 parser.add_argument('--lr_start', default=0.00001, type=float, help='|初始学习率，adam算法，3轮预热训练，基准为0.00001|')
 parser.add_argument('--lr_end_ratio', default=0.2, type=float, help='|最终学习率=lr_end_ratio*lr_start，基准为0.2|')
 parser.add_argument('--lr_adjust_num', default=20, type=int, help='|学习率下降调整次数，余玄下降法，要小于总轮次|')
-parser.add_argument('--lr_adjust_threshold', default=0.97, type=float, help='|本轮损失下降一定比例时才调整，基准为0.97|')
+parser.add_argument('--lr_adjust_threshold', default=0.95, type=float, help='|本轮损失下降一定比例时才调整，基准为0.95|')
 parser.add_argument('--regularization', default='L2', type=str, help='|正则化，有L2、None|')
 parser.add_argument('--r_value', default=0.0005, type=float, help='|正则化的权重系数|')
 parser.add_argument('--device', default='cuda', type=str, help='|训练设备|')
@@ -46,6 +47,7 @@ parser.add_argument('--amp', default=True, type=bool, help='|混合float16精度
 parser.add_argument('--distributed', default=False, type=bool, help='|单机多卡分布式训练，分布式训练时batch为总batch|')
 parser.add_argument('--local_rank', default=0, type=int, help='|分布式训练使用命令后会自动传入的参数|')
 args = parser.parse_args()
+args.divide = list(map(int, args.divide.split(',')))
 args.device_number = max(torch.cuda.device_count(), 1)  # 使用的GPU数，可能为CPU
 print(f'| args:{args} |')
 # 为CPU设置随机种子
