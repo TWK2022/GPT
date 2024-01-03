@@ -17,7 +17,7 @@ def train_get(args, data_dict, model_dict):
     if args.ema:
         ema.updates = model_dict['ema_updates']
     # 数据集
-    train_dataset = torch_dataset(args, data_dict['train_input'], model_dict['tokenizer'])
+    train_dataset = torch_dataset(args, data_dict['train'], model_dict['tokenizer'])
     train_shuffle = False if args.distributed else True  # 分布式设置sampler后shuffle要为False
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset) if args.distributed else None
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch, shuffle=train_shuffle,
@@ -27,14 +27,13 @@ def train_get(args, data_dict, model_dict):
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
                                                       output_device=args.local_rank) if args.distributed else model
     epoch_base = model_dict['epoch'] + 1  # 新的一轮要+1
-    for epoch in range(epoch_base, epoch_base + args.epoch):
-        # 训练
+    for epoch in range(epoch_base, epoch_base + args.epoch):  # 训练
         print(f'\n-----------------------第{epoch}轮-----------------------') if args.local_rank == 0 else None
         model.train()
-        train_loss = 0  # 记录训练损失
-        tqdm_show = tqdm.tqdm(
-            total=len(data_dict['train_input']) // args.batch // args.device_number * args.device_number, postfix=dict,
-            mininterval=0.2) if args.local_rank == 0 else None  # tqdm
+        train_loss = 0  # 记录损失
+        if args.local_rank == 0:  # tqdm
+            tqdm_len = len(data_dict['train']) // args.batch // args.device_number * args.device_number
+            tqdm_show = tqdm.tqdm(total=tqdm_len, mininterval=0.2)
         for index, (input_ids_batch, attention_mask_batch, label_batch) in enumerate(train_dataloader):
             input_ids_batch = input_ids_batch.to(args.device, non_blocking=args.latch)
             attention_mask_batch = attention_mask_batch.to(args.device, non_blocking=args.latch)
@@ -60,13 +59,15 @@ def train_get(args, data_dict, model_dict):
             train_loss += loss_batch.item()
             # tqdm
             if args.local_rank == 0:
-                tqdm_show.set_postfix({'当前loss': loss_batch.item()})  # 添加loss显示
+                tqdm_show.set_postfix({'loss': loss_batch.item()})  # 添加loss显示
                 tqdm_show.update(args.device_number)  # 更新进度条
         # tqdm
-        tqdm_show.close() if args.local_rank == 0 else None
+        if args.local_rank == 0:
+            tqdm_show.close()
         # 计算平均损失
         train_loss = train_loss / (index + 1)
-        print('\n| train_loss:{:.4f} | lr:{:.6f} |\n'.format(train_loss, optimizer.param_groups[0]['lr']))
+        if args.local_rank == 0:
+            print('\n| train_loss:{:.4f} | lr:{:.6f} |\n'.format(train_loss, optimizer.param_groups[0]['lr']))
         # 调整学习率
         optimizer = optimizer_adjust(optimizer, epoch + 1, train_loss)
         # 清理显存空间
@@ -108,8 +109,10 @@ class torch_dataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         sft_dict = self.input_data[index]
-        instruction = sft_dict['instruction'] + '\n' + sft_dict['input'] if sft_dict['input'] \
-            else sft_dict['instruction']
+        if sft_dict['input']:
+            instruction = sft_dict['instruction'] + '\n' + sft_dict['input']
+        else:
+            instruction = sft_dict['instruction']
         output = sft_dict['output'] + str(self.eos_token)
         text_merge = self.template.format(prompt=self.prompt, instruction=instruction)  # 对话时的完整输入
         input_encode = self.tokenizer.encode(text_merge, add_special_tokens=True, return_tensors='pt').squeeze(0)
