@@ -32,7 +32,7 @@ parser.add_argument('--wandb', default=False, type=bool, help='|是否使用wand
 parser.add_argument('--wandb_project', default='GPT', type=str, help='|wandb项目名称|')
 parser.add_argument('--wandb_name', default='train', type=str, help='|wandb项目中的训练名称|')
 parser.add_argument('--epoch', default=25, type=int, help='|训练轮数|')
-parser.add_argument('--batch', default=2, type=int, help='|训练批量大小|')
+parser.add_argument('--batch', default=1, type=int, help='|训练批量大小|')
 parser.add_argument('--lr_start', default=0.00001, type=float, help='|初始学习率，adam算法，3轮预热训练，基准为0.00001|')
 parser.add_argument('--lr_end_ratio', default=0.2, type=float, help='|最终学习率=lr_end_ratio*lr_start，基准为0.2|')
 parser.add_argument('--lr_adjust_num', default=20, type=int, help='|学习率下降调整次数，余玄下降法，要小于总轮次|')
