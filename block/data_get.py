@@ -1,5 +1,4 @@
-import numpy as np
-import pandas as pd
+import json
 
 
 def data_get(args):
@@ -9,15 +8,16 @@ def data_get(args):
 
 class data_prepare(object):
     def __init__(self, args):
+        self.divide = args.divide
         self.data_path = args.data_path
 
     def load(self):
         # 读取数据
-        try:
-            df = pd.read_csv(self.data_path, encoding='utf-8')
-        except:
-            df = pd.read_csv(self.data_path, encoding='gbk')
-        train_input = df.columns
-        train_output = df.values.astype(np.float32).T
-        data_dict = {'train_input': train_input, 'train_output': train_output}
+        with open(self.data_path, 'r', encoding='utf-8') as f:
+            data_list = json.load(f)
+        data_len = len(data_list)  # 输入数据的数量
+        boundary = int(data_len * self.divide[0] / (self.divide[0] + self.divide[1]))  # 数据划分
+        train = data_list[:boundary]
+        val = data_list[boundary:]
+        data_dict = {'train': train, 'val': val}
         return data_dict
