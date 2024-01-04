@@ -96,7 +96,7 @@ def train_get(args, data_dict, model_dict):
                 save_name = f'save_peft_{epoch}'
                 model_dict['model'].save_pretrained(save_name)
                 model_dict['tokenizer'].save_pretrained(save_name)
-            if args.save_pt != 0 and epoch % args.save_pt == 0:  # 保存完整模型
+            if args.save_pt > 0 and epoch % args.save_pt == 0:  # 保存完整模型以便中断后继续训练
                 torch.save(model_dict, 'last.pt')
             # wandb
             if args.wandb:
