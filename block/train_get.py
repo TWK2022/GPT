@@ -92,11 +92,12 @@ def train_get(args, data_dict, model_dict):
             model_dict['ema_updates'] = ema.updates if args.ema else model_dict['ema_updates']
             model_dict['train_loss'] = train_loss
             model_dict['val_loss'] = val_loss
-            if val_loss < model_dict['standard']:  # 保存较好的peft模型
+            if val_loss < model_dict['standard']:  # 保存最佳peft模型
                 model_dict['standard'] = val_loss
                 save_name = f'peft_{epoch}_{val_loss:.2f}'
                 model_dict['model'].save_pretrained(save_name)
                 model_dict['tokenizer'].save_pretrained(save_name)
+                print(f'\n| 保存最佳模型:{save_name} | val_loss:{val_loss:.4f} |\n')
             if args.save_pt > 0 and epoch % args.save_pt == 0:  # 保存完整模型以便中断后继续训练
                 torch.save(model_dict, 'last.pt')
             # wandb
