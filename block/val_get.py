@@ -25,5 +25,5 @@ def val_get(args, val_dataloader, model, data_dict, ema):
         tqdm_show.close()
         # 计算平均损失
         val_loss = val_loss / (index + 1)
-        print('\n| val_loss:{:.4f} |\n'.format(val_loss))
+        print(f'\n| val_loss:{val_loss:.4f} |\n')
     return val_loss
