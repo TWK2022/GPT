@@ -92,8 +92,9 @@ def train_get(args, data_dict, model_dict):
             model_dict['ema_updates'] = ema.updates if args.ema else model_dict['ema_updates']
             model_dict['train_loss'] = train_loss
             model_dict['val_loss'] = val_loss
-            if epoch % 1 == 0:  # 保存peft模型
-                save_name = f'save_peft_{epoch}'
+            if val_loss < model_dict['standard']:  # 保存较好的peft模型
+                model_dict['standard'] = val_loss
+                save_name = f'peft_{epoch}_{val_loss:.2f}'
                 model_dict['model'].save_pretrained(save_name)
                 model_dict['tokenizer'].save_pretrained(save_name)
             if args.save_pt > 0 and epoch % args.save_pt == 0:  # 保存完整模型以便中断后继续训练
