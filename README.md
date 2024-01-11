@@ -29,5 +29,7 @@
 >用gunicorn多进程启动flask服务：gunicorn -c gunicorn_config.py flask_start:app
 ### 7，run.py
 >微调模型：训练peft模型
+### 8，openai_API.py
+>使用密钥用API调用openai的GPT模型
 ***
 ![image](README_IMAGE/001.jpg)
