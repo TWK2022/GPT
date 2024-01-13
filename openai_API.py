@@ -22,7 +22,7 @@ class openai_API:
 
 if __name__ == '__main__':
     API = openai_API(args)
-    message = [{'role': 'system', 'content': '乐于助人的知识专家'},
+    message = [{'role': 'system', 'content': '你是一个乐于助人的知识专家'},
                {'role': 'user', 'content': '大模型训练时要注意什么'}]
     result = API.predict(message)
     print(result)
