@@ -3,7 +3,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='|openai_API|')
 parser.add_argument('--api_key', default='', type=str, help='|密钥|')
-parser.add_argument('--model', default='gpt-3.5-turbo-0613', type=str, help='|模型选择，如gpt-3.5-turbo-0613|')
+parser.add_argument('--model', default='gpt-3.5-turbo', type=str, help='|模型选择，如gpt-3.5-turbo、gpt-4|')
 parser.add_argument('--temperature', default=1, type=float, help='|值越小回答越简短稳定，默认1|')
 args = parser.parse_args()
 
@@ -22,7 +22,7 @@ class openai_API:
 
 if __name__ == '__main__':
     API = openai_API(args)
-    message = [{'role': 'system', 'content': '你是一个乐于助人的知识专家'},
+    message = [{'role': 'system', 'content': '你是一个乐于助人的知识专家，你的回答要丰富和全面'},
                {'role': 'user', 'content': '大模型训练时要注意什么'}]
     result = API.predict(message)
     print(result)
