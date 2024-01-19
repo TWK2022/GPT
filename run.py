@@ -7,14 +7,13 @@ from block.model_get import model_get
 from block.train_get import train_get
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# 数据格式：sft格式
-# [{'instruction':'A','input':'B','output':'C'},...]
-# 多轮对话数据：
-# prompt='You are a helpful assistant. 你是一个乐于助人的助手。'
-# template='[INST] <<SYS>>\n{prompt}\n<</SYS>>\n\n{instruction} [/INST]'
-# text=template.format(prompt=prompt,instruction=instruction)
-# template_add=' {answer}</s><s>[INST] {instruction} [/INST]'
-# text=text+template_add.format(answer=answer,instruction=instruction)
+# 单轮对话数据格式(json)：没有system时用默认的
+# [{'input':'B','output':'C'},...]
+# [{'system':'A','input':'B','output':'C'},...]
+# -------------------------------------------------------------------------------------------------------------------- #
+# 多轮对话数据格式(json)：没有system时用默认的
+# [{'input':'B','output':'C','input2':'D','output2':'E'},...]
+# [{'system':'A','input':'B','output':'C','input2':'D','output2':'E'},...]
 # -------------------------------------------------------------------------------------------------------------------- #
 # 分布式训练：
 # python -m torch.distributed.launch --master_port 9999 --nproc_per_node n run.py --distributed True
@@ -22,18 +21,19 @@ from block.train_get import train_get
 # n为GPU数量
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
-parser = argparse.ArgumentParser(description='|llama类大模型微调:peft模型训练|')
-parser.add_argument('--data_path', default=r'data_demo.json', type=str, help='|sft(.json)数据路径|')
-parser.add_argument('--divide', default='9,1', type=str, help='|训练集和验证集划分比例|')
-parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|原模型位置|')
-parser.add_argument('--weight', default='last.pt', type=str, help='|已有模型的位置，没有则新建peft再训练|')
-parser.add_argument('--save_pt', default=1, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
+parser = argparse.ArgumentParser(description='|大模型微调:peft模型训练|')
 parser.add_argument('--wandb', default=False, type=bool, help='|是否使用wandb可视化|')
 parser.add_argument('--wandb_project', default='GPT', type=str, help='|wandb项目名称|')
 parser.add_argument('--wandb_name', default='train', type=str, help='|wandb项目中的训练名称|')
+parser.add_argument('--data_path', default=r'merge.json', type=str, help='|sft(.json)数据路径|')
+parser.add_argument('--divide', default='9,1', type=str, help='|训练集和验证集划分比例|')
+parser.add_argument('--weight', default='last.pt', type=str, help='|已有模型的位置，没有则新建peft再训练|')
+parser.add_argument('--model', default='llama2', type=str, help='|模型选择|')
+parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|原模型位置|')
+parser.add_argument('--save_pt', default=1, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
 parser.add_argument('--epoch', default=15, type=int, help='|训练轮数|')
-parser.add_argument('--batch', default=1, type=int, help='|训练批量大小|')
-parser.add_argument('--lr_start', default=0.00002, type=float, help='|初始学习率，adam算法，3轮预热训练，基准为0.00002|')
+parser.add_argument('--batch', default=2, type=int, help='|训练批量大小|')
+parser.add_argument('--lr_start', default=0.000075, type=float, help='|初始学习率，adam算法，3轮预热训练，要小于0.0001|')
 parser.add_argument('--lr_end_ratio', default=0.1, type=float, help='|最终学习率=lr_end_ratio*lr_start，基准为0.1|')
 parser.add_argument('--lr_adjust_num', default=10, type=int, help='|学习率下降调整次数，余玄下降法，要小于总轮次|')
 parser.add_argument('--lr_adjust_threshold', default=0.9, type=float, help='|损失下降比较快时不调整学习率，基准为0.9|')
