@@ -113,29 +113,33 @@ class torch_dataset(torch.utils.data.Dataset):
         self.tokenizer = tokenizer
         self.eos_token = tokenizer.eos_token
         self.pad_token_id = tokenizer.pad_token_id
-        self.prompt = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 提示词
-        self.template = ('[INST] <<SYS>>\n'
-                         '{prompt}\n'
-                         '<</SYS>>\n\n'
-                         '{instruction} [/INST]')  # 对话模型的输入需要经过特殊的处理
+        if args.model == 'llama2':
+            self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
+            self.template = ('[INST] <<SYS>>\n'
+                             '{system}\n'
+                             '<</SYS>>\n\n'
+                             '{input} [/INST]')  # 单轮对话提示模版
+            self.template_add = ' {output}</s><s>[INST] {input2} [/INST]'  # 多轮对话追加的提示模版
 
     def __len__(self):
         return len(self.input_data)
 
     def __getitem__(self, index):
-        sft_dict = self.input_data[index]
-        if sft_dict['input']:
-            instruction = sft_dict['instruction'] + '\n' + sft_dict['input']
-        else:
-            instruction = sft_dict['instruction']
-        output = sft_dict['output'] + str(self.eos_token)
-        text_merge = self.template.format(prompt=self.prompt, instruction=instruction)  # 对话时的完整输入
-        input_encode = self.tokenizer.encode(text_merge, add_special_tokens=True, return_tensors='pt').squeeze(0)
+        data_dict = self.input_data[index]
+        system = data_dict['system'] if 'system' in data_dict.keys() else self.system  # 系统提示
+        input_ = data_dict['input']  # 问题
+        output = data_dict['output'] + str(self.eos_token)  # 标签
+        prompt = self.template.format(system=system, input=input_)  # 完整输入
+        if 'input2' in data_dict.keys():  # 多轮对话
+            input2 = data_dict['input2']
+            prompt = prompt + self.template_add.format(output=output, input2=input2)
+            output = data_dict['output2']
+        input_encode = self.tokenizer.encode(prompt, add_special_tokens=True, return_tensors='pt').squeeze(0)
         output_encode = self.tokenizer.encode(output, add_special_tokens=False, return_tensors='pt').squeeze(0)
-        input_ids = torch.concat([input_encode, output_encode], dim=0)  # 训练时的完整输入input_ids
-        attention_mask = torch.full_like(input_ids, 1)  # attention_mask
+        input_ids = torch.concat([input_encode, output_encode], dim=0)  # 训练时的完整输入
+        attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, -100)  # 不需要的地方变为-100
-        label[len(input_encode):] = output_encode  # 训练时的完整标签label
+        label[len(input_encode):] = output_encode  # 训练时的完整标签
         return input_ids, attention_mask, label
 
     def collate_fn(self, getitem_list):  # 自定义__getitem__的合并方式，填充数据然后合并为批量
