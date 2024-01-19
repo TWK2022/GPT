@@ -8,13 +8,10 @@ def model_get(args):
     if os.path.exists(args.weight):  # 继续训练peft模型
         model_dict = torch.load(args.weight, map_location='cpu')
     else:  # 重新训练peft模型
-        tokenizer = transformers.LlamaTokenizer.from_pretrained(args.model_path)
-        model = transformers.LlamaForCausalLM.from_pretrained(args.model_path, low_cpu_mem_usage=True)
-        peft_config = peft.LoraConfig(r=64, lora_alpha=128, lora_dropout=0.05, inference_mode=False,
-                                      task_type=peft.TaskType.CAUSAL_LM,
-                                      target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj',
-                                                      'up_proj'])  # peft模型配置，可根据情况修改
-        model = peft.get_peft_model(model, peft_config)  # 在原模型上创建peft模型
+        choice_dict = {'llama2': 'model_prepare(args).llama2()',
+                       'baichuan2': 'model_prepare(args).baichuan2()',
+                       }
+        tokenizer, model = eval(choice_dict[args.model])
         model_dict = {}
         model_dict['model'] = model
         model_dict['tokenizer'] = tokenizer
@@ -25,3 +22,21 @@ def model_get(args):
         model_dict['standard'] = 1  # 评价指标
     model_dict['model'].print_trainable_parameters()  # 显示模型的可训练参数和总参数
     return model_dict
+
+
+class model_prepare:
+    def __init__(self, args):
+        self.args = args
+
+    def llama2(self):
+        tokenizer = transformers.LlamaTokenizer.from_pretrained(self.args.model_path)
+        model = transformers.LlamaForCausalLM.from_pretrained(self.args.model_path, low_cpu_mem_usage=True)
+        peft_config = peft.LoraConfig(r=64, lora_alpha=128, lora_dropout=0.05, inference_mode=False,
+                                      task_type=peft.TaskType.CAUSAL_LM,
+                                      target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj',
+                                                      'up_proj'])  # peft模型配置，可根据情况修改
+        model = peft.get_peft_model(model, peft_config)  # 在原模型上创建peft模型
+        return tokenizer, model
+
+    def baichuan2(self):
+        return None
