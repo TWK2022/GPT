@@ -1,21 +1,25 @@
 ## GPT
->基于pytorch实现的语言生成模型指令微调框架：peft模型训练。目前只支持llama类  
->参考Chinese-LLaMA-Alpaca-2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2
+>基于pytorch实现的语言生成模型指令微调框架：peft模型训练
 ### 1，环境
 >torch：https://pytorch.org/get-started/previous-versions/
 >```
 >pip install transformers peft -i https://pypi.tuna.tsinghua.edu.cn/simple
 >```
-### *，chinese-alpaca-2模型下载
->chinese-alpaca-2-1.3b(2.4G)模型很小，可以在本地用cpu运行，以便调试代码  
->Chinese-LLaMA-Alpaca-2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2  
->chinese-alpaca-2-1.3b(2.4G)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
+### *，模型下载
+#### Baichuan2  
+>Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2  
+>Baichuan2-7B-Chat(15G)：https://huggingface.co/baichuan-inc/Baichuan2-7B-Chat  
+>Baichuan2-13B-Chat(28G)：https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat  
+#### Chinese-LLaMA-Alpaca-2  
+>LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2  
+>chinese-alpaca-2-1.3b(2.4G)(模型很小，可以在本地用cpu运行以便调试代码)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
 >chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
->chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b  
+>chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b
+#### 下载方法
 >```
 >sudo apt-get install git-lfs：linux安装git-lfs。windows安装git时自带
 >git lfs install：启用lfs。不使用lfs无法下载大文件
->git clone chinese-alpaca-2-1.3b：https://huggingface.co/hfl/chinese-alpaca-2-1.3b：下载模型
+>git clone https://huggingface.co/hfl/chinese-alpaca-2-1.3b：下载模型chinese-alpaca-2-1.3b
 >```
 ### 2，predict.py
 >使用模型
