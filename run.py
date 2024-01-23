@@ -32,7 +32,7 @@ parser.add_argument('--model', default='llama2', type=str, help='|模型选择|'
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|原模型位置|')
 parser.add_argument('--save_pt', default=1, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
 parser.add_argument('--epoch', default=15, type=int, help='|训练轮数|')
-parser.add_argument('--batch', default=2, type=int, help='|训练批量大小|')
+parser.add_argument('--batch', default=2, type=int, help='|训练批量大小，分布式时为总批量|')
 parser.add_argument('--lr_start', default=0.000075, type=float, help='|初始学习率，adam算法，3轮预热训练，要小于0.0001|')
 parser.add_argument('--lr_end_ratio', default=0.1, type=float, help='|最终学习率=lr_end_ratio*lr_start，基准为0.1|')
 parser.add_argument('--lr_adjust_num', default=10, type=int, help='|学习率下降调整次数，余玄下降法，要小于总轮次|')
