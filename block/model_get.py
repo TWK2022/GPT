@@ -9,8 +9,7 @@ def model_get(args):
         model_dict = torch.load(args.weight, map_location='cpu')
     else:  # 重新训练peft模型
         choice_dict = {'llama2': 'model_prepare(args).llama2()',
-                       'baichuan2': 'model_prepare(args).baichuan2()',
-                       }
+                       'baichuan2': 'model_prepare(args).baichuan2()'}
         tokenizer, model = eval(choice_dict[args.model])
         model_dict = {}
         model_dict['model'] = model
@@ -33,9 +32,15 @@ class model_prepare:
         peft_config = peft.LoraConfig(r=64, lora_alpha=128, lora_dropout=0.05, inference_mode=False,
                                       task_type=peft.TaskType.CAUSAL_LM,
                                       target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj',
-                                                      'up_proj'])  # peft模型配置，可根据情况修改
-        model = peft.get_peft_model(model, peft_config)  # 在原模型上创建peft模型
+                                                      'up_proj'])
+        model = peft.get_peft_model(model, peft_config)
         return tokenizer, model
 
     def baichuan2(self):
-        return None
+        tokenizer = transformers.AutoTokenizer.from_pretrained(self.args.model_path, trust_remote_code=True,
+                                                               use_fast=False)
+        model = transformers.AutoModelForCausalLM.from_pretrained(self.args.model_path, trust_remote_code=True)
+        peft_config = peft.LoraConfig(r=1, lora_alpha=32, lora_dropout=0.1, inference_mode=False,
+                                      task_type=peft.TaskType.CAUSAL_LM, target_modules=['W_pack'])
+        model = peft.get_peft_model(model, peft_config)
+        return tokenizer, model
