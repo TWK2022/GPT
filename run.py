@@ -40,7 +40,7 @@ parser.add_argument('--r_value', default=0.0001, type=float, help='|正则化权
 parser.add_argument('--device', default='cuda', type=str, help='|训练设备|')
 parser.add_argument('--latch', default=False, type=bool, help='|模型和数据是否为锁存，True为锁存|')
 parser.add_argument('--num_worker', default=0, type=int, help='|CPU处理数据的进程数，0只有一个主进程，一般为0、2、4、8|')
-parser.add_argument('--ema', default=True, type=bool, help='|使用平均指数移动(EMA)调整参数|')
+parser.add_argument('--ema', default=False, type=bool, help='|使用平均指数移动(EMA)调整参数|')
 parser.add_argument('--amp', default=True, type=bool, help='|混合float16精度训练，CPU时不可用|')
 parser.add_argument('--distributed', default=False, type=bool, help='|单机多卡分布式训练，分布式训练时batch为总batch|')
 parser.add_argument('--local_rank', default=0, type=int, help='|分布式训练使用命令后会自动传入的参数|')
@@ -56,7 +56,7 @@ torch.backends.cudnn.deterministic = True
 # cuDNN使用非确定性算法
 torch.backends.cudnn.enabled = True
 # 训练前cuDNN会先搜寻每个卷积层最适合实现它的卷积算法，加速运行；但对于复杂变化的输入数据，可能会有过长的搜寻时间，对于训练比较快的网络建议设为False
-torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.benchmark = True
 # wandb可视化:https://wandb.ai
 if args.wandb and args.local_rank == 0:  # 分布式时只记录一次wandb
     args.wandb_run = wandb.init(project=args.wandb_project, name=args.wandb_name, config=args)
