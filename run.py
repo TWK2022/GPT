@@ -28,7 +28,7 @@ parser.add_argument('--ignore_index', default=-100, type=int, help='|模型输�
 parser.add_argument('--weight', default='last.pt', type=str, help='|已有模型的位置，没有则新建peft再训练|')
 parser.add_argument('--model', default='llama2', type=str, help='|模型选择|')
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|原模型位置|')
-parser.add_argument('--save_pt', default=1, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
+parser.add_argument('--save_pt', default=0, type=int, help='|每几轮保存一次last.pt模型以便中断后继续训练，0为不保存|')
 parser.add_argument('--epoch', default=15, type=int, help='|训练总轮数(包含之前已训练轮数)|')
 parser.add_argument('--batch', default=2, type=int, help='|训练批量大小，分布式时为总批量|')
 parser.add_argument('--warmup_ratio', default=0.01, type=float, help='|预热训练步数占总步数比例，最少5步，基准为0.01|')
