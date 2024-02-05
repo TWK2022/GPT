@@ -7,7 +7,7 @@ import transformers
 parser = argparse.ArgumentParser('|模型预测|')
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
 parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
-parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小约稳定|')
+parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
 parser.add_argument('--device', default='cuda', type=str, help='|设备|')
 args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
 
