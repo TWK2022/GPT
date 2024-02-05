@@ -118,10 +118,7 @@ class torch_dataset(torch.utils.data.Dataset):
         self.pad_token_id = tokenizer.pad_token_id
         if args.model == 'llama2':
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
-            self.template = ('<s>[INST] <<SYS>>\n'
-                             '{system}\n'
-                             '<</SYS>>\n\n'
-                             '{input} [/INST]')  # 单轮对话提示模版
+            self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
         elif args.model == 'baichuan2':
             self.system = ''  # 默认系统提示
