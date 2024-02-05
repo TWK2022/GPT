@@ -1,3 +1,10 @@
-# torch：https://pytorch.org/get-started/previous-versions/
+# torch：
+# https://pytorch.org/get-started/previous-versions/
+# llama2：
+# pip install transformers peft -i https://pypi.tuna.tsinghua.edu.cn/simple
+# baichuan2：
 # pip install transformers peft sentencepiece -i https://pypi.tuna.tsinghua.edu.cn/simple
+# qwen：
+# pip install transformers peft einops tiktoken transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 其他
 # pip install ... -i https://pypi.tuna.tsinghua.edu.cn/simple
