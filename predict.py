@@ -37,6 +37,17 @@ class predict_class:
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
+        elif args.model == 'qwen':
+            self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
+            self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
+                                                                           torch_dtype=torch.float16).eval()
+            self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
+            self.model = self.model.to(self.device)
+            self.system = 'You are a helpful assistant.'  # 默认系统提示
+            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
+                             '<|im_start|>assistant')  # 单轮对话提示模版
+            self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
+                                 '<|im_start|>assistant')  # 多轮对话追加的提示模版
 
     def predict(self, input_, generation_config=None):  # 输入字符串
         generation_config = generation_config if generation_config else self.generation_config
@@ -45,7 +56,6 @@ class predict_class:
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
-            result = result.split("<reserved_107>")[-1].strip()
         return result
 
 
