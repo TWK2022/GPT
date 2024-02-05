@@ -7,6 +7,7 @@ import transformers
 parser = argparse.ArgumentParser('|模型预测|')
 parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
 parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
+parser.add_argument('--temperature', default=0.5, type=float, help='|回答稳定概率|')
 parser.add_argument('--device', default='cuda', type=str, help='|设备|')
 args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
 
@@ -16,7 +17,8 @@ args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = p
 class predict_class:
     def __init__(self, args):
         self.device = args.device
-        self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True, temperature=0.5)
+        self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True,
+                                                               temperature=args.temperature)
         self.record = 0
         self.record_list = []
         if args.model == 'llama2':
@@ -53,6 +55,7 @@ class predict_class:
         generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
             prompt = self.template.format(system=self.system, input=input_)
+            print(f'| prompt:{prompt} |')
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
