@@ -122,8 +122,8 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
         elif args.model == 'baichuan2':
             self.system = ''  # 默认系统提示
-            self.template = '{system}<reserved_106>{input}'  # 单轮对话提示模版
-            self.template_add = '<reserved_107>{output_add}<reserved_106>{input_add}'  # 多轮对话追加的提示模版
+            self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
+            self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
 
     def __len__(self):
         return len(self.input_data)
