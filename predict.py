@@ -55,7 +55,7 @@ class predict_class:
         generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
-            print(f'| prompt:{prompt} |')
+            print(f'\n| prompt:{prompt} |\n')
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
