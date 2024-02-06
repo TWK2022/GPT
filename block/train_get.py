@@ -150,7 +150,7 @@ class torch_dataset(torch.utils.data.Dataset):
         input_ids_batch = torch.nn.utils.rnn.pad_sequence(input_ids_list, batch_first=True,
                                                           padding_value=self.tokenizer.pad_token_id)
         attention_mask_batch = torch.nn.utils.rnn.pad_sequence(attention_mask_list, batch_first=True, padding_value=0)
-        label_batch = torch.nn.utils.rnn.pad_sequence(label_list, batch_first=True, padding_value=-100)
+        label_batch = torch.nn.utils.rnn.pad_sequence(label_list, batch_first=True, padding_value=self.ignore_index)
         return input_ids_batch, attention_mask_batch, label_batch
 
     def _llama2(self, system, input_, output):
