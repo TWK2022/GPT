@@ -32,10 +32,10 @@ class predict_class:
                                                                            torch_dtype=torch.float16).eval()
         elif args.model == 'qwen':
             self.system = 'You are a helpful assistant.\n'  # 默认系统提示
-            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
-                             '<|im_start|>assistant')  # 单轮对话提示模版
-            self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
-                                 '<|im_start|>assistant')  # 多轮对话追加的提示模版
+            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+                             '<|im_start|>assistant\n')  # 单轮对话提示模版
+            self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+                                 '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
