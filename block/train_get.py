@@ -129,7 +129,7 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
-                                 '<|im_start|>assistant')  # 多轮对话追加的提示模版
+                                 '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
             self.ignore_index = -100
             self.im_start_id = tokenizer.im_start_id  # 对应<|im_start|>
             self.im_end_id = tokenizer.im_end_id  # 对应<|im_end|>
