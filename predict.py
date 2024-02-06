@@ -5,8 +5,8 @@ import transformers
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
 parser = argparse.ArgumentParser('|模型预测|')
-parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
-parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
+parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
+parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
 parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
 parser.add_argument('--device', default='cuda', type=str, help='|设备|')
 args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
@@ -16,11 +16,6 @@ args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = p
 # 程序
 class predict_class:
     def __init__(self, args):
-        self.device = args.device
-        self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True,
-                                                               temperature=args.temperature)
-        self.record = 0
-        self.record_list = []
         if args.model == 'llama2':
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
@@ -28,8 +23,6 @@ class predict_class:
             self.tokenizer = transformers.LlamaTokenizer.from_pretrained(args.model_path)
             self.model = transformers.LlamaForCausalLM.from_pretrained(args.model_path, low_cpu_mem_usage=True,
                                                                        torch_dtype=torch.float16).eval()
-            self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
-            self.model = self.model.to(self.device)
         elif args.model == 'baichuan2':
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
@@ -37,8 +30,6 @@ class predict_class:
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
-            self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
-            self.model = self.model.to(self.device)
         elif args.model == 'qwen':
             self.system = 'You are a helpful assistant.\n'  # 默认系统提示
             self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
@@ -48,23 +39,29 @@ class predict_class:
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
-            self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
-            self.model = self.model.to(self.device)
+        self.record = 0
+        self.record_list = []
+        self.device = args.device
+        self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
+        self.model = self.model.to(args.device)
+        self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True,
+                                                               temperature=args.temperature)
 
     def predict(self, system, input_, generation_config=None):  # 输入字符串
         generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
-            print(f'\n| prompt:{prompt} |\n')
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
-        return result
+        return prompt, result
 
 
 if __name__ == '__main__':
-    system = ''
-    input_ = '你好呀'
     model = predict_class(args)
-    result = model.predict(system, input_)
-    print(result)
+    while True:
+        system = ''
+        input_ = input('用户输入：').strip()
+        prompt, result = model.predict(system, input_)
+        print(f'----------prompt----------\n{prompt}')
+        print(f'----------result----------\n{result}')
