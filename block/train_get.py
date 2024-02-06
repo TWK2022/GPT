@@ -123,14 +123,17 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
             self.ignore_index = -100
-            self.reserved_106 = 195  # 对应<reserved_106>
+            self.reserved_106 = tokenizer.encode('<reserved_106>', add_special_tokens=False)  # 对应<reserved_106>
         elif args.model == 'qwen':
             self.system = 'You are a helpful assistant.\n'  # 默认系统提示
-            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
-                             '<|im_start|>assistant')  # 单轮对话提示模版
-            self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user{input}<|im_end|>\n'
+            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+                             '<|im_start|>assistant\n')  # 单轮对话提示模版
+            self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant')  # 多轮对话追加的提示模版
             self.ignore_index = -100
+            self.im_start_id = tokenizer.im_start_id  # 对应<|im_start|>
+            self.im_end_id = tokenizer.im_end_id  # 对应<|im_end|>
+            self.n = tokenizer.encode('\n', add_special_tokens=False)  # 对应<|im_end|>后的\n
 
     def __len__(self):
         return len(self.input_data)
@@ -175,7 +178,26 @@ class torch_dataset(torch.utils.data.Dataset):
         label = torch.full_like(input_ids, self.ignore_index)
         label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
         index = torch.nonzero(input_ids == self.reserved_106).squeeze(1)  # <reserved_106>对应的地方
-        label[index] = self.tokenizer.eos_token_id  # <reserved_106>对应的地方要变为eos_token_id
+        label[index] = self.tokenizer.eos_token_id  # 变为eos_token_id
+        input_ids = input_ids[:self.max_length]
+        attention_mask = attention_mask[:self.max_length]
+        label = label[:self.max_length]
+        return input_ids, attention_mask, label
+
+    def _qwen(self, system, input_, output):
+        prompt = self.template.format(system=system, input=input_)
+        prompt_encode = self.tokenizer.encode(prompt, add_special_tokens=False)
+        output_encode = self.tokenizer.encode(output, add_special_tokens=False)
+        input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id, self.n], dtype=torch.int64)
+        attention_mask = torch.full_like(input_ids, 1)
+        label = torch.full_like(input_ids, self.ignore_index)
+        label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
+        index = torch.nonzero(input_ids == self.im_start_id).squeeze(1)  # <|im_start|>对应的地方
+        label[index] = self.im_start_id  # 变为im_start_id
+        index = torch.nonzero(input_ids == self.im_end_id).squeeze(1)  # <|im_end|>对应的地方
+        label[index] = self.im_end_id  # 变为im_end_id
+        index += 1  # <|im_end|>后的\n对应的地方
+        label[index] = self.n  # 变为198
         input_ids = input_ids[:self.max_length]
         attention_mask = attention_mask[:self.max_length]
         label = label[:self.max_length]
