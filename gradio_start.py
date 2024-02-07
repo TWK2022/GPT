@@ -16,8 +16,8 @@ args = parser.parse_args()
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # 程序
-def function(text):
-    result = model.predict(system='', input_=text)
+def function(input_):
+    result = model.predict(system='', input_=input_)
     return result
 
 
