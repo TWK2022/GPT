@@ -20,6 +20,7 @@ class predict_class:
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
+            self.split = '[/INST]'
             self.tokenizer = transformers.LlamaTokenizer.from_pretrained(args.model_path)
             self.model = transformers.LlamaForCausalLM.from_pretrained(args.model_path, low_cpu_mem_usage=True,
                                                                        torch_dtype=torch.float16).eval()
@@ -27,6 +28,7 @@ class predict_class:
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
+            self.split = '<reserved_107>'
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
@@ -36,6 +38,7 @@ class predict_class:
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
+            self.split = '<|im_start|>assistant\n'
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
@@ -47,7 +50,17 @@ class predict_class:
         self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True,
                                                                temperature=args.temperature)
 
-    def predict(self, system, input_, generation_config=None):  # 输入字符串
+    def predict(self, system, input_, generation_config=None):
+        generation_config = generation_config if generation_config else self.generation_config
+        with torch.no_grad():
+            prompt = self.template.format(system=self.system + system, input=input_)
+            input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
+            pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
+            result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
+            result = result.split(self.split)[-1]
+        return result
+
+    def test(self, system, input_, generation_config=None):
         generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
@@ -62,6 +75,6 @@ if __name__ == '__main__':
     while True:
         system = ''
         input_ = input('用户输入：').strip()
-        prompt, result = model.predict(system, input_)
+        prompt, result = model.test(system, input_)
         print(f'----------prompt----------\n{prompt}')
         print(f'----------result----------\n{result}')
