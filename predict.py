@@ -1,19 +1,7 @@
 import torch
-import argparse
 import transformers
 
-# -------------------------------------------------------------------------------------------------------------------- #
-# 设置
-parser = argparse.ArgumentParser('|模型预测|')
-parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
-parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
-parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
-parser.add_argument('--device', default='cuda', type=str, help='|设备|')
-args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
 
-
-# -------------------------------------------------------------------------------------------------------------------- #
-# 程序
 class predict_class:
     def __init__(self, args):
         if args.model == 'llama2':
@@ -71,6 +59,16 @@ class predict_class:
 
 
 if __name__ == '__main__':
+    import argparse
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    parser = argparse.ArgumentParser('|模型预测|')
+    parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
+    parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
+    parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
+    parser.add_argument('--device', default='cuda', type=str, help='|设备|')
+    args = parser.parse_args()
+    # ---------------------------------------------------------------------------------------------------------------- #
     model = predict_class(args)
     while True:
         system = ''
