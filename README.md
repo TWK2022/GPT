@@ -18,7 +18,7 @@
 >Baichuan2-13B-Chat(28G)：https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat  
 #### Chinese-LLaMA-Alpaca-2  
 >LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2  
->chinese-alpaca-2-1.3b(2.4G)(模型很小，可以在本地用cpu运行以便调试代码)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
+>chinese-alpaca-2-1.3b(2.4G)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
 >chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
 >chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b
 #### 下载方法
