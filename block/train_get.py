@@ -126,7 +126,7 @@ class torch_dataset(torch.utils.data.Dataset):
             self.reserved_106 = tokenizer.encode('<reserved_106>', add_special_tokens=False)  # 对应<reserved_106>
         elif args.model == 'qwen':
             self.system = 'You are a helpful assistant.\n'  # 默认系统提示
-            self.template = ('<|im_start|>{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+            self.template = ('<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
