@@ -188,7 +188,7 @@ class torch_dataset(torch.utils.data.Dataset):
         prompt = self.template.format(system=system, input=input_)
         prompt_encode = self.tokenizer.encode(prompt, add_special_tokens=False)
         output_encode = self.tokenizer.encode(output, add_special_tokens=False)
-        input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id, self.n], dtype=torch.int64)
+        input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id] + self.n, dtype=torch.int64)
         attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, self.ignore_index)
         label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
