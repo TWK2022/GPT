@@ -51,6 +51,6 @@ class model_prepare:
         model = transformers.AutoModelForCausalLM.from_pretrained(self.args.model_path, trust_remote_code=True)
         peft_config = peft.LoraConfig(r=64, lora_alpha=16, lora_dropout=0.05, inference_mode=False,
                                       task_type=peft.TaskType.CAUSAL_LM,
-                                      target_modules=["c_attn", "c_proj", "w1", "w2"])
+                                      target_modules=['c_attn', 'c_proj', 'w1', 'w2'])
         model = peft.get_peft_model(model, peft_config)
         return tokenizer, model
