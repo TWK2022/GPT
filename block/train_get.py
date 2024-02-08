@@ -133,7 +133,7 @@ class torch_dataset(torch.utils.data.Dataset):
             self.ignore_index = -100
             self.im_start_id = tokenizer.im_start_id  # 对应<|im_start|>
             self.im_end_id = tokenizer.im_end_id  # 对应<|im_end|>
-            self.n = tokenizer.encode('\n', add_special_tokens=False)  # 对应<|im_end|>后的\n
+            self.n = tokenizer.encode('\n', add_special_tokens=False)[0]  # 对应<|im_end|>后的\n
 
     def __len__(self):
         return len(self.input_data)
