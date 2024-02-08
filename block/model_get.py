@@ -9,7 +9,8 @@ def model_get(args):
         model_dict = torch.load(args.weight, map_location='cpu')
     else:  # 重新训练peft模型
         choice_dict = {'llama2': 'model_prepare(args).llama2()',
-                       'baichuan2': 'model_prepare(args).baichuan2()'}
+                       'baichuan2': 'model_prepare(args).baichuan2()',
+                       'qwen': 'model_prepare(args).qwen()'}
         tokenizer, model = eval(choice_dict[args.model])
         model_dict = {}
         model_dict['model'] = model
