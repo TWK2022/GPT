@@ -6,7 +6,7 @@ def val_get(args, val_dataloader, model, data_dict, ema):
     with torch.no_grad():
         model = ema.ema if args.ema else model.eval()
         val_loss = 0  # 记录损失
-        tqdm_len = len(data_dict['val']) // args.batch // args.device_number * args.device_number
+        tqdm_len = len(data_dict['val']) // args.batch * args.device_number
         tqdm_show = tqdm.tqdm(total=tqdm_len, mininterval=0.2)
         for index, (input_ids_batch, attention_mask_batch, label_batch) in enumerate(val_dataloader):
             input_ids_batch = input_ids_batch.to(args.device, non_blocking=args.latch)
