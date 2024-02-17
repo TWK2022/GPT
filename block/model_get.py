@@ -34,7 +34,7 @@ class model_prepare:
                                       task_type=peft.TaskType.CAUSAL_LM,
                                       target_modules=['q_proj', 'v_proj', 'k_proj', 'o_proj', 'gate_proj', 'down_proj',
                                                       'up_proj'])
-        model = peft.get_peft_model(model, peft_config)
+        model = peft.get_peft_model(model, peft_config).float()
         return tokenizer, model
 
     def baichuan2(self):
@@ -43,7 +43,7 @@ class model_prepare:
         model = transformers.AutoModelForCausalLM.from_pretrained(self.args.model_path, trust_remote_code=True)
         peft_config = peft.LoraConfig(r=1, lora_alpha=32, lora_dropout=0.1, inference_mode=False,
                                       task_type=peft.TaskType.CAUSAL_LM, target_modules=['W_pack'])
-        model = peft.get_peft_model(model, peft_config)
+        model = peft.get_peft_model(model, peft_config).float()
         return tokenizer, model
 
     def qwen(self):
@@ -53,5 +53,5 @@ class model_prepare:
         peft_config = peft.LoraConfig(r=64, lora_alpha=16, lora_dropout=0.05, inference_mode=False,
                                       task_type=peft.TaskType.CAUSAL_LM,
                                       target_modules=['c_attn', 'c_proj', 'w1', 'w2'])
-        model = peft.get_peft_model(model, peft_config)
+        model = peft.get_peft_model(model, peft_config).float()
         return tokenizer, model
