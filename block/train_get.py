@@ -30,7 +30,7 @@ def train_get(args, data_dict, model_dict):
     val_batch = args.batch // args.device_number  # 分布式验证时batch要减少为一个GPU的量
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=val_batch, shuffle=False,
                                                  drop_last=False, pin_memory=args.latch, num_workers=args.num_worker,
-                                                 sampler=val_sampler)
+                                                 sampler=val_sampler, collate_fn=val_dataset.collate_fn)
     # 分布式初始化
     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank],
                                                       output_device=args.local_rank) if args.distributed else model
