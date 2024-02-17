@@ -118,11 +118,13 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
             self.ignore_index = -100
+            self.pad_token_id = 0
         elif args.model == 'baichuan2':
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
             self.ignore_index = -100
+            self.pad_token_id = 0
             self.reserved_106 = tokenizer.encode('<reserved_106>', add_special_tokens=False)  # 对应<reserved_106>
         elif args.model == 'qwen':
             self.system = 'You are a helpful assistant.\n'  # 默认系统提示
@@ -131,6 +133,7 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
             self.ignore_index = -100
+            self.pad_token_id = 0
             self.im_start_id = tokenizer.im_start_id  # 对应<|im_start|>
             self.im_end_id = tokenizer.im_end_id  # 对应<|im_end|>
             self.n = tokenizer.encode('\n', add_special_tokens=False)[0]  # 对应<|im_end|>后的\n
@@ -151,7 +154,7 @@ class torch_dataset(torch.utils.data.Dataset):
         attention_mask_list = [_[1] for _ in getitem_list]
         label_list = [_[2] for _ in getitem_list]
         input_ids_batch = torch.nn.utils.rnn.pad_sequence(input_ids_list, batch_first=True,
-                                                          padding_value=self.tokenizer.pad_token_id)
+                                                          padding_value=self.pad_token_id)
         attention_mask_batch = torch.nn.utils.rnn.pad_sequence(attention_mask_list, batch_first=True, padding_value=0)
         label_batch = torch.nn.utils.rnn.pad_sequence(label_list, batch_first=True, padding_value=self.ignore_index)
         return input_ids_batch, attention_mask_batch, label_batch
@@ -188,7 +191,7 @@ class torch_dataset(torch.utils.data.Dataset):
         prompt = self.template.format(system=system, input=input_)
         prompt_encode = self.tokenizer.encode(prompt, add_special_tokens=False)
         output_encode = self.tokenizer.encode(output, add_special_tokens=False)
-        input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id] + self.n, dtype=torch.int64)
+        input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id] + [self.n], dtype=torch.int64)
         attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, self.ignore_index)
         label[len(prompt_encode):] = input_ids[len(prompt_encode):]
