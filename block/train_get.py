@@ -163,7 +163,7 @@ class torch_dataset(torch.utils.data.Dataset):
         input_ids = torch.tensor(prompt_encode + output_encode + [self.tokenizer.eos_token_id], dtype=torch.int64)
         attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, self.ignore_index)
-        label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
+        label[len(prompt_encode):] = input_ids[len(prompt_encode):]
         input_ids = input_ids[:self.max_length]
         attention_mask = attention_mask[:self.max_length]
         label = label[:self.max_length]
@@ -176,7 +176,7 @@ class torch_dataset(torch.utils.data.Dataset):
         input_ids = torch.tensor(prompt_encode + output_encode + [self.tokenizer.eos_token_id], dtype=torch.int64)
         attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, self.ignore_index)
-        label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
+        label[len(prompt_encode):] = input_ids[len(prompt_encode):]
         index = torch.nonzero(input_ids == self.reserved_106).squeeze(1)  # <reserved_106>对应的地方
         label[index] = self.tokenizer.eos_token_id  # 变为eos_token_id
         input_ids = input_ids[:self.max_length]
@@ -191,7 +191,7 @@ class torch_dataset(torch.utils.data.Dataset):
         input_ids = torch.tensor(prompt_encode + output_encode + [self.im_end_id] + self.n, dtype=torch.int64)
         attention_mask = torch.full_like(input_ids, 1)
         label = torch.full_like(input_ids, self.ignore_index)
-        label[-len(output_encode):] = torch.tensor(output_encode, dtype=torch.int64)
+        label[len(prompt_encode):] = input_ids[len(prompt_encode):]
         index = torch.nonzero(input_ids == self.im_start_id).squeeze(1)  # <|im_start|>对应的地方
         label[index] = self.im_start_id  # 变为im_start_id
         index = torch.nonzero(input_ids == self.im_end_id).squeeze(1)  # <|im_end|>对应的地方
