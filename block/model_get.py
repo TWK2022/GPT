@@ -18,7 +18,7 @@ def model_get(args):
         model_dict['epoch_finished'] = 0  # 已训练的轮次
         model_dict['optimizer_state_dict'] = None  # 学习率参数
         model_dict['ema_updates'] = 0  # ema参数
-        model_dict['standard'] = 1  # 评价指标
+        model_dict['standard'] = 2  # 评价指标
     model_dict['model'].print_trainable_parameters()  # 显示模型的可训练参数和总参数
     return model_dict
 
