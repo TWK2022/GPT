@@ -22,7 +22,7 @@ parser.add_argument('--wandb', default=False, type=bool, help='|是否使用wand
 parser.add_argument('--wandb_project', default='GPT', type=str, help='|wandb项目名称|')
 parser.add_argument('--wandb_name', default='train', type=str, help='|wandb项目中的训练名称|')
 parser.add_argument('--data_path', default=r'merge.json', type=str, help='|json数据路径|')
-parser.add_argument('--divide', default='19,1', type=str, help='|训练集和验证集划分比例|')
+parser.add_argument('--divide', default='99,1', type=str, help='|训练集和验证集划分比例|')
 parser.add_argument('--max_length', default=1024, type=int, help='|模型输入的最大长度|')
 parser.add_argument('--weight', default='last.pt', type=str, help='|已有模型的位置，没有则新建peft再训练|')
 parser.add_argument('--model', default='qwen', type=str, help='|模型选择|')
