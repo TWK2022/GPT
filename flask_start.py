@@ -8,10 +8,12 @@ from predict import predict_class
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
 parser = argparse.ArgumentParser('|在服务器上启动flask服务|')
-parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
-parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
+parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
+parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
+parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
+parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
 parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
-parser.add_argument('--device', default='cpu', type=str, help='|设备|')
+parser.add_argument('--device', default='cuda', type=str, help='|设备|')
 args, _ = parser.parse_known_args()  # 防止传入参数冲突，替代args = parser.parse_args()
 app = flask.Flask(__name__)  # 创建一个服务框架
 
