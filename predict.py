@@ -1,3 +1,4 @@
+import peft
 import torch
 import transformers
 
@@ -30,6 +31,8 @@ class predict_class:
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
+        if args.peft_model_path:
+            self.model = peft.PeftModel.from_pretrained(self.model, args.peft_model_path)
         self.record = 0
         self.record_list = []
         self.device = args.device
@@ -64,14 +67,16 @@ if __name__ == '__main__':
     # ---------------------------------------------------------------------------------------------------------------- #
     parser = argparse.ArgumentParser('|模型预测|')
     parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
+    parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
     parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
+    parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
     parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
     parser.add_argument('--device', default='cuda', type=str, help='|设备|')
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
     model = predict_class(args)
     while True:
-        system = ''
+        system = args.system
         input_ = input('用户输入：').strip()
         prompt, result = model.test(system, input_)
         print(f'----------prompt----------\n{prompt}')
