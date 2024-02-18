@@ -93,7 +93,7 @@ def train_get(args, data_dict, model_dict):
             model_dict['train_loss'] = train_loss
             model_dict['val_loss'] = val_loss
             # 保存peft模型
-            save_name = f'peft_{epoch}_{val_loss:.2f}'
+            save_name = f'peft_{epoch}_{train_loss:.2f}_{val_loss:.2f}'
             model_dict['model'].save_pretrained(save_name)
             print(f'\n| 保存模型:{save_name} | train_loss:{train_loss:.4f} | val_loss:{val_loss:.4f} |\n')
             if args.save_pt > 0 and epoch % args.save_pt == 0:  # 保存完整模型以便中断后继续训练
