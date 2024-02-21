@@ -88,14 +88,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
     model = predict_class(args)
-    if not args.stream:
-        while True:
-            system = args.system
-            input_ = input('用户输入：').strip()
-            prompt, result = model.test(system, input_)
-            print(f'----------prompt----------\n{prompt}')
-            print(f'----------result----------\n{result}')
-    else:
+    if args.stream:
         while True:
             system = args.system
             input_ = input('用户输入：').strip()
@@ -104,3 +97,10 @@ if __name__ == '__main__':
             for str_ in stream:
                 print(str_, end='')
             print('\n')
+    else:
+        while True:
+            system = args.system
+            input_ = input('用户输入：').strip()
+            prompt, result = model.test(system, input_)
+            print(f'----------prompt----------\n{prompt}')
+            print(f'----------result----------\n{result}')
