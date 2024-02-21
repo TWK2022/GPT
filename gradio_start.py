@@ -2,19 +2,18 @@
 # 用gradio将程序包装成一个可视化的页面，可以在网页可视化的展示
 import gradio
 import argparse
-import transformers
 from predict import predict_class
 
 # -------------------------------------------------------------------------------------------------------------------- #
 # 设置
 parser = argparse.ArgumentParser('|在服务器上启动gradio服务|')
-parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
+parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
 parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
-parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
+parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
 parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
 parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
+parser.add_argument('--stream', default=True, type=bool, help='|流式输出，需要特殊处理|')
 parser.add_argument('--device', default='cpu', type=str, help='|设备|')
-parser.add_argument('--stream', default=False, type=bool, help='|流式输出|')
 args = parser.parse_args()
 
 
@@ -22,16 +21,15 @@ args = parser.parse_args()
 # 程序
 def function(input_, temperature, history):
     temperature = args.temperature if temperature == 'default' else temperature
-    generation_config = transformers.GenerationConfig(max_new_tokens=1024, temperature=temperature)
     if args.stream:
-        stream = model.predict_stream(system='', input_=input_, generation_config=generation_config)
+        stream = model.predict_stream(system='', input_=input_, temperature=temperature)
         history.append([input_, ''])
         for index, str_ in enumerate(stream):
             if index > 0:
                 history[-1][-1] += str_
                 yield history
     else:
-        result = model.predict(system='', input_=input_, generation_config=generation_config)
+        result = model.predict(system='', input_=input_, temperature=temperature)
         history.append([input_, result])
         yield history
 
