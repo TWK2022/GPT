@@ -43,6 +43,15 @@ class predict_class:
         self.generation_config = transformers.GenerationConfig(max_new_tokens=1024, do_sample=True,
                                                                temperature=args.temperature)
 
+    def test(self, system, input_, generation_config=None):
+        generation_config = generation_config if generation_config else self.generation_config
+        with torch.no_grad():
+            prompt = self.template.format(system=self.system + system, input=input_)
+            input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
+            pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
+            result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
+        return prompt, result
+
     def predict(self, system, input_, generation_config=None):
         generation_config = generation_config if generation_config else self.generation_config
         with torch.no_grad():
@@ -52,15 +61,6 @@ class predict_class:
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
             result = result.split(self.split)[-1]
         return result
-
-    def test(self, system, input_, generation_config=None):
-        generation_config = generation_config if generation_config else self.generation_config
-        with torch.no_grad():
-            prompt = self.template.format(system=self.system + system, input=input_)
-            input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
-            pred = self.model.generate(input_ids=input_ids, generation_config=generation_config)
-            result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
-        return prompt, result
 
     def predict_stream(self, system, input_, generation_config=None):
         generation_config = generation_config if generation_config else self.generation_config
@@ -78,18 +78,29 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------------------------------------------------- #
     parser = argparse.ArgumentParser('|模型预测|')
-    parser.add_argument('--model_path', default='chinese-alpaca-2-1.3b', type=str, help='|tokenizer和模型文件夹位置|')
+    parser.add_argument('--model_path', default='Qwen-1_8B-Chat', type=str, help='|tokenizer和模型文件夹位置|')
     parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
-    parser.add_argument('--model', default='llama2', type=str, help='|模型类型|')
+    parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
     parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
     parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
-    parser.add_argument('--device', default='cpu', type=str, help='|设备|')
+    parser.add_argument('--stream', default=True, type=bool, help='|流式输出，需要特殊处理|')
+    parser.add_argument('--device', default='cuda', type=str, help='|设备|')
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
     model = predict_class(args)
-    while True:
-        system = args.system
-        input_ = input('用户输入：').strip()
-        prompt, result = model.test(system, input_)
-        print(f'----------prompt----------\n{prompt}')
-        print(f'----------result----------\n{result}')
+    if not args.stream:
+        while True:
+            system = args.system
+            input_ = input('用户输入：').strip()
+            prompt, result = model.test(system, input_)
+            print(f'----------prompt----------\n{prompt}')
+            print(f'----------result----------\n{result}')
+    else:
+        while True:
+            system = args.system
+            input_ = input('用户输入：').strip()
+            stream = model.predict_stream(system, input_)
+            print(f'----------stream----------')
+            for str_ in stream:
+                print(str_, end='')
+            print('\n')
