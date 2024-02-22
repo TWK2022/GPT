@@ -115,13 +115,13 @@ class torch_dataset(torch.utils.data.Dataset):
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
-            self.pad_token_id = 32000
+            self.pad_token_id = 32000  # <pad>
             self.ignore_index = -100
         elif args.model == 'baichuan2':
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
-            self.pad_token_id = 0
+            self.pad_token_id = 0  # <unk>
             self.ignore_index = -100
             self.reserved_106 = tokenizer.encode('<reserved_106>', add_special_tokens=False)  # 对应<reserved_106>
         elif args.model == 'qwen':
@@ -130,7 +130,7 @@ class torch_dataset(torch.utils.data.Dataset):
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
-            self.pad_token_id = 151643
+            self.pad_token_id = 151643  # <|endoftext|>
             self.ignore_index = -100
             self.im_start_id = tokenizer.im_start_id  # 对应<|im_start|>
             self.im_end_id = tokenizer.im_end_id  # 对应<|im_end|>
