@@ -48,11 +48,14 @@ class predict_class:
         self.stream = transformers.TextIteratorStreamer(self.tokenizer)
         self.generation_config = transformers.GenerationConfig(eos_token_id=self.eos_token_id,
                                                                pad_token_id=self.pad_token_id, max_new_tokens=1024,
-                                                               do_sample=True, temperature=args.temperature, )
+                                                               do_sample=True, temperature=args.temperature,
+                                                               repetition_penalty=args.repetition_penalty)
 
-    def test(self, system, input_, temperature=None):
+    def test(self, system, input_, temperature=None, repetition_penalty=None):
         if temperature:
             self.generation_config.temperature = temperature
+        if repetition_penalty:
+            self.generation_config.repetition_penalty = repetition_penalty
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
@@ -60,9 +63,11 @@ class predict_class:
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
         return prompt, result
 
-    def predict(self, system, input_, temperature=None):
+    def predict(self, system, input_, temperature=None, repetition_penalty=None):
         if temperature:
             self.generation_config.temperature = temperature
+        if repetition_penalty:
+            self.generation_config.repetition_penalty = repetition_penalty
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
@@ -71,9 +76,11 @@ class predict_class:
             result = result.split(self.split)[-1]
         return result
 
-    def predict_stream(self, system, input_, temperature=None):
+    def predict_stream(self, system, input_, temperature=None, repetition_penalty=None):
         if temperature:
             self.generation_config.temperature = temperature
+        if repetition_penalty:
+            self.generation_config.repetition_penalty = repetition_penalty
         with torch.no_grad():
             prompt = self.template.format(system=self.system + system, input=input_)
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
@@ -93,6 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
     parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
     parser.add_argument('--temperature', default=0.2, type=float, help='|回答稳定概率，0.2-0.8，越小越稳定|')
+    parser.add_argument('--repetition_penalty', default=1, type=float, help='|防止模型输出重复的惩罚权重，1为不惩罚|')
     parser.add_argument('--stream', default=False, type=bool, help='|流式输出，需要特殊处理|')
     parser.add_argument('--device', default='cuda', type=str, help='|设备|')
     args = parser.parse_args()
