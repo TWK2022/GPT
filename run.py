@@ -16,7 +16,6 @@ from block.train_get import train_get
 # master_port为GPU之间的通讯端口，空闲的即可
 # n为GPU数量
 # -------------------------------------------------------------------------------------------------------------------- #
-# 设置
 parser = argparse.ArgumentParser(description='|大模型微调:peft模型训练|')
 parser.add_argument('--wandb', default=False, type=bool, help='|是否使用wandb可视化|')
 parser.add_argument('--wandb_project', default='GPT', type=str, help='|wandb项目名称|')
@@ -67,14 +66,12 @@ if args.distributed:
     torch.distributed.init_process_group(backend="nccl")
     args.device = torch.device("cuda", args.local_rank)
 # -------------------------------------------------------------------------------------------------------------------- #
-# 初步检查
 assert os.path.exists(args.data_path), f'! data_path不存在:{args.data_path} !'
 if os.path.exists(args.weight):
     print(f'| 加载模型继续训练:{args.weight} |')
 else:
     print(f'| 创建peft模型以微调模型:{args.model_path} |')
 # -------------------------------------------------------------------------------------------------------------------- #
-# 程序
 if __name__ == '__main__':
     # 摘要
     print(f'| args:{args} |') if args.local_rank == 0 else None
