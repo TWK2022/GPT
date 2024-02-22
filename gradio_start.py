@@ -19,21 +19,30 @@ args = parser.parse_args()
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-def function(input_, history, max_new_tokens, temperature, repetition_penalty):
+def _stream_deal(str_):
+    if args.model == 'qwen':
+        if str_[-10:] == '<|im_end|>':
+            str_ = str_.replace('<|im_end|>', '')
+    return str_
+
+
+def function(input_, history, system, max_new_tokens, temperature, repetition_penalty):
+    system = system if system else args.system
     temperature = args.temperature if temperature == 'default' else temperature
     max_new_tokens = args.max_new_tokens if max_new_tokens == 'default' else max_new_tokens
     repetition_penalty = args.repetition_penalty if repetition_penalty == 'default' else repetition_penalty
     config_dict = {'max_new_tokens': max_new_tokens, 'temperature': temperature,
                    'repetition_penalty': repetition_penalty}
     if args.stream:
-        stream = model.predict_stream(system='', input_=input_, config_dict=config_dict)
+        stream = model.predict_stream(system=system, input_=input_, config_dict=config_dict)
         history.append([input_, ''])
         for index, str_ in enumerate(stream):
             if index > 0:
+                str_ = _stream_deal(str_)
                 history[-1][-1] += str_
                 yield history
     else:
-        result = model.predict(system='', input_=input_, config_dict=config_dict)
+        result = model.predict(system=system, input_=input_, config_dict=config_dict)
         history.append([input_, result])
         yield history
 
@@ -41,6 +50,7 @@ def function(input_, history, max_new_tokens, temperature, repetition_penalty):
 def gradio_start():
     # 输入
     input_ = gradio.Textbox(placeholder='在此输入内容', label='用户输入', lines=1, scale=9)
+    system = gradio.Textbox(placeholder='在此输入系统提示词(可不填)', label='系统提示词')
     temperature = gradio.components.Radio(choices=['default', 0.2, 0.5, 0.8], value='default',
                                           label='temperature')
     max_new_tokens = gradio.components.Radio(choices=['default', 512, 768, 1024], value='default',
@@ -52,7 +62,8 @@ def gradio_start():
     # 按钮
     button = gradio.Button(value='确定🚀', scale=1)
     # 渲染
-    with gradio.Blocks(theme='Default') as gradio_app:
+    theme = gradio.themes.Base(primary_hue='pink', secondary_hue='rose', neutral_hue='pink')
+    with gradio.Blocks(theme=theme, title=args.model_path) as gradio_app:
         gradio.Markdown('## 对话模型')
         with gradio.Row():  # 水平排列
             with gradio.Column(scale=9):  # 垂直排列
@@ -64,11 +75,12 @@ def gradio_start():
                 gradio.Examples(examples=['你好呀', '你是谁'], inputs=input_, label='示例')
             with gradio.Column(scale=1):  # 垂直排列
                 gradio.Markdown('### 设置')
+                system.render()
                 temperature.render()
                 max_new_tokens.render()
                 repetition_penalty.render()
         # 事件
-        button.click(fn=function, inputs=[input_, chatbot, temperature, max_new_tokens, repetition_penalty],
+        button.click(fn=function, inputs=[input_, chatbot, system, max_new_tokens, temperature, repetition_penalty],
                      outputs=[chatbot])
     # 启动
     gradio_app.queue()
