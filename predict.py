@@ -34,8 +34,8 @@ class predict_class:
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
             self.split = '<|im_start|>assistant\n'
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
-            self.eos_token_id = 151645
-            self.pad_token_id = 0
+            self.eos_token_id = 151643
+            self.pad_token_id = 151643
             self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                            torch_dtype=torch.float16).eval()
         if args.peft_model_path:
