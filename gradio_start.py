@@ -19,13 +19,6 @@ args = parser.parse_args()
 
 
 # -------------------------------------------------------------------------------------------------------------------- #
-def _stream_deal(str_):
-    if args.model == 'qwen':
-        if str_[-10:] == '<|im_end|>':
-            str_ = str_.replace('<|im_end|>', '')
-    return str_
-
-
 def function(input_, history, system, max_new_tokens, temperature, repetition_penalty):
     system = system if system else args.system
     temperature = args.temperature if temperature == 'default' else temperature
@@ -36,11 +29,9 @@ def function(input_, history, system, max_new_tokens, temperature, repetition_pe
     if args.stream:
         stream = model.predict_stream(system=system, input_=input_, config_dict=config_dict)
         history.append([input_, ''])
-        for index, str_ in enumerate(stream):
-            if index > 0:
-                str_ = _stream_deal(str_)
-                history[-1][-1] += str_
-                yield history
+        for str_ in stream:
+            history[-1][-1] += str_
+            yield history
     else:
         result = model.predict(system=system, input_=input_, config_dict=config_dict)
         history.append([input_, result])
