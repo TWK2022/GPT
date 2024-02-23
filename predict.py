@@ -6,6 +6,7 @@ import transformers
 
 class predict_class:
     def __init__(self, args):
+        self.model_type = args.model
         if args.model == 'llama2':
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
@@ -40,8 +41,6 @@ class predict_class:
                                                                            torch_dtype=torch.float16).eval()
         if args.peft_model_path:
             self.model = peft.PeftModel.from_pretrained(self.model, args.peft_model_path)
-        self.record = 0
-        self.record_list = []
         self.device = args.device
         self.model = self.model.float() if args.device.lower() == 'cpu' else self.model.half()
         self.model = self.model.to(args.device)
@@ -63,6 +62,7 @@ class predict_class:
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=self.generation_config)
             result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
+            result = result.split(self.split)[-1]
         return prompt, result
 
     def predict(self, system, input_, config_dict=None):
@@ -89,7 +89,35 @@ class predict_class:
             kwargs = {'input_ids': input_ids, 'generation_config': self.generation_config, 'streamer': self.stream}
             thread = threading.Thread(target=self.model.generate, kwargs=kwargs)
             thread.start()
-            return self.stream
+            return eval(f'self._stream_{self.model_type}()')
+
+    def _stream_llama2(self):
+        for index, str_ in enumerate(self.stream):
+            if index == 0:
+                continue
+            elif index == 1:
+                str_ = str_.replace('[/INST] ', '')
+            elif str_[-4:] == '</s>':
+                str_ = str_[1:-4]
+            yield str_
+
+    def _stream_baichuan2(self):
+        for index, str_ in enumerate(self.stream):
+            if index == 0:
+                continue
+            elif index == 1:
+                str_ = str_.split('<reserved_107>')[-1]
+            elif str_[-4:] == '</s>':
+                str_ = str_[1:-4]
+            yield str_
+
+    def _stream_qwen(self):
+        for index, str_ in enumerate(self.stream):
+            if index == 0:
+                continue
+            elif str_[-10:] == '<|im_end|>':
+                str_ = str_.replace('<|im_end|>', '')
+            yield str_
 
 
 if __name__ == '__main__':
@@ -105,7 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_new_tokens', default=768, type=int, help='|模型最大输出长度限制|')
     parser.add_argument('--repetition_penalty', default=1.1, type=float, help='|防止模型输出重复的惩罚权重，1为不惩罚|')
     parser.add_argument('--stream', default=False, type=bool, help='|流式输出，需要特殊处理|')
-    parser.add_argument('--device', default='cpu', type=str, help='|设备|')
+    parser.add_argument('--device', default='cuda', type=str, help='|设备|')
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
     model = predict_class(args)
