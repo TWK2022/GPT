@@ -3,7 +3,7 @@
 ### 1，环境
 >torch：https://pytorch.org/get-started/previous-versions/
 >```
->pip install transformers peft -i https://pypi.tuna.tsinghua.edu.cn/simple
+>pip install transformers peft==0.6 transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
 >```
 ### *，模型下载
 #### Qwen
