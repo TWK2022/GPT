@@ -11,7 +11,7 @@ class predict_class:
             self.system = 'You are a helpful assistant. 你是一个乐于助人的助手。'  # 默认系统提示
             self.template = ('<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n{input} [/INST]')  # 单轮对话提示模版
             self.template_add = ' {output_add}</s><s>[INST] {input_add} [/INST]'  # 多轮对话追加的提示模版
-            self.split = '[/INST]'
+            self.strip_end = 4  # </s>
             self.tokenizer = transformers.LlamaTokenizer.from_pretrained(args.model_path)
             self.eos_token_id = 2  # </s>
             self.pad_token_id = 32000  # <pad>
@@ -21,7 +21,7 @@ class predict_class:
             self.system = ''  # 默认系统提示
             self.template = '{system}<reserved_106>{input}<reserved_107>'  # 单轮对话提示模版
             self.template_add = '{output_add}<reserved_106>{input_add}<reserved_107>'  # 多轮对话追加的提示模版
-            self.split = '<reserved_107>'
+            self.strip_end = 4  # </s>
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.eos_token_id = 2  # </s>
             self.pad_token_id = 0  # <unk>
@@ -33,7 +33,7 @@ class predict_class:
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
             self.template_add = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
                                  '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
-            self.split = '<|im_start|>assistant\n'
+            self.strip_end = 10  # <|im_end|>
             self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
             self.eos_token_id = 151645  # <|im_end|>
             self.pad_token_id = 151643  # <|endoftext|>
@@ -61,8 +61,8 @@ class predict_class:
             prompt = self.template.format(system=self.system + system, input=input_)
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=self.generation_config)
-            result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
-            result = result.split(self.split)[-1]
+            result = self.tokenizer.decode(pred[0])
+            result = result[len(prompt):-self.strip_end].strip()
         return prompt, result
 
     def predict(self, system, input_, config_dict=None):
@@ -74,8 +74,8 @@ class predict_class:
             prompt = self.template.format(system=self.system + system, input=input_)
             input_ids = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').to(self.device)
             pred = self.model.generate(input_ids=input_ids, generation_config=self.generation_config)
-            result = self.tokenizer.decode(pred[0], skip_special_tokens=True)
-            result = result.split(self.split)[-1]
+            result = self.tokenizer.decode(pred[0])
+            result = result[len(prompt):-self.strip_end].strip()
         return result
 
     def predict_stream(self, system, input_, config_dict=None):
@@ -96,7 +96,7 @@ class predict_class:
             if index == 0:
                 continue
             elif index == 1:
-                str_ = str_.replace('[/INST] ', '')
+                str_ = str_.replace('[/INST]', '').strip()
             elif str_[-4:] == '</s>':
                 str_ = str_[1:-4]
             yield str_
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     parser.add_argument('--temperature', default=0.2, type=float, help='|值越小回答稳定概率，0.2-0.8|')
     parser.add_argument('--max_new_tokens', default=768, type=int, help='|模型最大输出长度限制|')
     parser.add_argument('--repetition_penalty', default=1.1, type=float, help='|防止模型输出重复的惩罚权重，1为不惩罚|')
-    parser.add_argument('--stream', default=False, type=bool, help='|流式输出，需要特殊处理|')
+    parser.add_argument('--stream', default=False, type=bool, help='|流式输出|')
     parser.add_argument('--device', default='cuda', type=str, help='|设备|')
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
