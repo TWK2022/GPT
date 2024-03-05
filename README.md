@@ -21,6 +21,8 @@
 >chinese-alpaca-2-1.3b(2.4G)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
 >chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
 >chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b
+#### 知识库检索编码模型
+>text2vec-base-chinese：https://huggingface.co/shibing624/text2vec-base-chinese
 #### 下载方法
 >```
 >sudo apt-get install git-lfs：linux安装git-lfs。windows安装git时自带
@@ -41,9 +43,9 @@
 >以post请求传输数据调用服务
 ### 8，gunicorn_config.py
 >用gunicorn多进程启动flask服务：gunicorn -c gunicorn_config.py flask_start:app
-### 9，run.py
+### 9，openai_API.py
+>使用密钥用API调用openai的GPT模型来获取数据
+### 10，run.py
 >微调模型：训练peft模型
-### 10，openai_API.py
->使用密钥用API调用openai的GPT模型
 ***
 ![image](README_IMAGE/001.jpg)
