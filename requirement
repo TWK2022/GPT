@@ -6,5 +6,7 @@
 # pip install transformers peft==0.6 transformers_stream_generator sentencepiece -i https://pypi.tuna.tsinghua.edu.cn/simple
 # qwen：
 # pip install transformers peft==0.6 einops tiktoken transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 知识库
+# pip install llama_index -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 其他
 # pip install ... -i https://pypi.tuna.tsinghua.edu.cn/simple
