@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cpu', type=str, help='|设备|')
     args = parser.parse_args()
     # ---------------------------------------------------------------------------------------------------------------- #
-    input_text = ''
+    input_text = '知识库检索怎么做'
     model = search_class(args)
     score, text = model.search(input_text)
     print(f'| 相似度:{score} |')
