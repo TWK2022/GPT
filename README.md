@@ -29,17 +29,21 @@
 >```
 ### 2，predict.py
 >使用模型
-### 3，gradio_start.py
+### 3，feature_make.py
+>制作特征数据库
+### 4，feature_search.py
+>使用数据库
+### 5，gradio_start.py
 >用gradio将程序包装成一个可视化的页面，可以在网页可视化的展示
-### 4，flask_start.py
+### 6，flask_start.py
 >用flask将程序包装成一个服务，并在服务器上启动
-### 5，flask_request.py
+### 7，flask_request.py
 >以post请求传输数据调用服务
-### 6，gunicorn_config.py
+### 8，gunicorn_config.py
 >用gunicorn多进程启动flask服务：gunicorn -c gunicorn_config.py flask_start:app
-### 7，run.py
+### 9，run.py
 >微调模型：训练peft模型
-### 8，openai_API.py
+### 10，openai_API.py
 >使用密钥用API调用openai的GPT模型
 ***
 ![image](README_IMAGE/001.jpg)
