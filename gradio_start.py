@@ -25,8 +25,8 @@ def function(input_, history, system, search, search_score, stream, max_new_toke
                    'repetition_penalty': repetition_penalty}
     if search:
         score, text = model_search.search(input_)
-        print(score)
-        print(text)
+        print(f'| score:{score} |')
+        print(f'| text:{text[0:50]}... |')
         if score > search_score:
             system += f'\n你的回答要参考以下资料：\n{text}'
     if stream:
