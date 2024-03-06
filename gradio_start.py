@@ -56,7 +56,7 @@ def gradio_start():
     # 按钮
     button = gradio.Button(value='确定🚀', scale=1)
     # 渲染
-    theme = gradio.themes.Base(primary_hue='pink', secondary_hue='rose', neutral_hue='pink')
+    theme = gradio.themes.Base(primary_hue='rose', secondary_hue='rose', neutral_hue='rose')
     with gradio.Blocks(theme=theme, title=args.model_path) as gradio_app:
         gradio.Markdown('## 对话模型')
         with gradio.Row():  # 水平排列
