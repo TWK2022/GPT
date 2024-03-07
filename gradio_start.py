@@ -14,7 +14,7 @@ parser.add_argument('--temperature', default=0.2, type=float, help='|值越小�
 parser.add_argument('--max_new_tokens', default=768, type=int, help='|模型最大输出长度限制|')
 parser.add_argument('--repetition_penalty', default=1.1, type=float, help='|防止模型输出重复的惩罚权重，1为不惩罚|')
 parser.add_argument('--device', default='cpu', type=str, help='|设备|')
-parser.add_argument('--embed_model_path', default='text2vec_base_chinese', type=str, help='|编码模型位置|')
+parser.add_argument('--embed_model_path', default='text2vec-bge-large-chinese', type=str, help='|编码模型位置|')
 parser.add_argument('--database_path', default='feature_database', type=str, help='|特征数据库|')
 args = parser.parse_args()
 
