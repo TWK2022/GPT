@@ -12,11 +12,11 @@
 >Qwen-7B-Chat(16G)：https://huggingface.co/Qwen/Qwen-7B-Chat  
 >Qwen-14B-Chat(29G)：https://huggingface.co/Qwen/Qwen-14B-Chat  
 >Qwen-72B-Chat(160G)：https://huggingface.co/Qwen/Qwen-72B-Chat
-#### Baichuan2  
+#### Baichuan2
 >Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2  
 >Baichuan2-7B-Chat(15G)：https://huggingface.co/baichuan-inc/Baichuan2-7B-Chat  
 >Baichuan2-13B-Chat(28G)：https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat  
-#### Chinese-LLaMA-Alpaca-2  
+#### Chinese-LLaMA-Alpaca-2
 >LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2  
 >chinese-alpaca-2-1.3b(2.4G)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
 >chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
