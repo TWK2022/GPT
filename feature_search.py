@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------------------------------------------------- #
     parser = argparse.ArgumentParser('|模型预测|')
-    parser.add_argument('--embed_model_path', default='text2vec_base_chinese', type=str, help='|编码模型位置|')
+    parser.add_argument('--embed_model_path', default='text2vec-bge-large-chinese', type=str, help='|编码模型位置|')
     parser.add_argument('--database_path', default='feature_database', type=str, help='|特征数据库|')
     parser.add_argument('--device', default='cpu', type=str, help='|设备|')
     args = parser.parse_args()
