@@ -22,7 +22,7 @@
 >chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
 >chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b
 #### 知识库检索编码模型
->text2vec-base-chinese(1.5G)：https://huggingface.co/shibing624/text2vec-base-chinese
+>shibing624/text2vec-bge-large-chinese(1.2G)：https://huggingface.co/shibing624/text2vec-bge-large-chinese
 #### 下载方法
 >```
 >sudo apt-get install git-lfs：linux安装git-lfs。windows安装git时自带
