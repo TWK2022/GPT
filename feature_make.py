@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # ---------------------------------------------------------------------------------------------------------------- #
     parser = argparse.ArgumentParser('|模型预测|')
-    parser.add_argument('--embed_model_path', default='text2vec_base_chinese', type=str, help='|编码模型位置|')
+    parser.add_argument('--embed_model_path', default='text2vec-bge-large-chinese', type=str, help='|编码模型位置|')
     parser.add_argument('--data_path', default='data_knowledge', type=str, help='|数据库文件夹(含.txt文件)|')
     parser.add_argument('--save_path', default='feature_database', type=str, help='|保存的特征数据库位置|')
     parser.add_argument('--device', default='cpu', type=str, help='|设备|')
