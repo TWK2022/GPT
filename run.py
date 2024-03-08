@@ -63,7 +63,7 @@ if args.amp:
     args.amp = torch.cuda.amp.GradScaler()
 # 分布式训练
 if args.distributed:
-    torch.distributed.init_process_group(backend="nccl")
+    torch.distributed.init_process_group(backend='nccl')
     args.device = torch.device("cuda", args.local_rank)
 # -------------------------------------------------------------------------------------------------------------------- #
 assert os.path.exists(args.data_path), f'! data_path不存在:{args.data_path} !'
