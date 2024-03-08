@@ -47,5 +47,7 @@
 >使用密钥用API调用openai的GPT模型来获取数据
 ### 10，run.py
 >微调模型：训练peft模型
+### 其他
+>学习笔记：https://github.com/TWK2022/notebook
 ***
 ![image](README_IMAGE/001.jpg)
