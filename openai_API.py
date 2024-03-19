@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser(description='|openai_API|')
 parser.add_argument('--api_key', default='', type=str, help='|密钥|')
 parser.add_argument('--model', default='gpt-3.5-turbo', type=str, help='|模型选择，如gpt-3.5-turbo、gpt-4|')
-parser.add_argument('--temperature', default=0.5, type=float, help='|值越小回答越简短稳定，默认1|')
+parser.add_argument('--temperature', default=0.5, type=float, help='|值越小回答越稳定，默认1|')
 args = parser.parse_args()
 
 
