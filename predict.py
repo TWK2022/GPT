@@ -129,7 +129,7 @@ if __name__ == '__main__':
     parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
     parser.add_argument('--model', default='qwen', type=str, help='|模型类型|')
     parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
-    parser.add_argument('--temperature', default=0.2, type=float, help='|值越小回答稳定概率，0.2-0.8|')
+    parser.add_argument('--temperature', default=0.2, type=float, help='|值越小回答越稳定，0.2-0.8|')
     parser.add_argument('--max_new_tokens', default=768, type=int, help='|模型最大输出长度限制|')
     parser.add_argument('--repetition_penalty', default=1.1, type=float, help='|防止模型输出重复的惩罚权重，1为不惩罚|')
     parser.add_argument('--stream', default=False, type=bool, help='|流式输出|')
