@@ -6,12 +6,12 @@
 >pip install transformers peft==0.6 transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
 >```
 ### *，模型下载
-#### Qwen
->Qwen官方项目：https://github.com/QwenLM/Qwen
 #### Baichuan2
 >Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2
 #### Chinese-LLaMA-Alpaca-2
 >LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2
+#### Qwen
+>Qwen官方项目：https://github.com/QwenLM/Qwen
 #### Qwen2
 >Qwen2官方项目：https://github.com/QwenLM/Qwen2
 #### 知识库检索编码模型
