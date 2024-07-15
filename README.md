@@ -7,20 +7,13 @@
 >```
 ### *，模型下载
 #### Qwen
->Qwen官方项目：https://github.com/QwenLM/Qwen  
->Qwen-1_8B-Chat(3.5G)：https://huggingface.co/Qwen/Qwen-1_8B-Chat  
->Qwen-7B-Chat(16G)：https://huggingface.co/Qwen/Qwen-7B-Chat  
->Qwen-14B-Chat(29G)：https://huggingface.co/Qwen/Qwen-14B-Chat  
->Qwen-72B-Chat(160G)：https://huggingface.co/Qwen/Qwen-72B-Chat
+>Qwen官方项目：https://github.com/QwenLM/Qwen
 #### Baichuan2
->Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2  
->Baichuan2-7B-Chat(15G)：https://huggingface.co/baichuan-inc/Baichuan2-7B-Chat  
->Baichuan2-13B-Chat(28G)：https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat  
+>Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2
 #### Chinese-LLaMA-Alpaca-2
->LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2  
->chinese-alpaca-2-1.3b(2.4G)：https://huggingface.co/hfl/chinese-alpaca-2-1.3b  
->chinese-alpaca-2-7b(13G)：https://huggingface.co/hfl/chinese-alpaca-2-7b  
->chinese-alpaca-2-13b(25G)：https://huggingface.co/hfl/chinese-alpaca-2-13b
+>LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2
+#### Qwen2
+>Qwen2官方项目：https://github.com/QwenLM/Qwen2
 #### 知识库检索编码模型
 >shibing624/text2vec-bge-large-chinese(1.2G)：https://huggingface.co/shibing624/text2vec-bge-large-chinese
 #### 下载方法
