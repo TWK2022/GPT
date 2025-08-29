@@ -9,7 +9,6 @@ import transformers
 parser = argparse.ArgumentParser('|模型预测|')
 parser.add_argument('--model_path', default='qwen3_0.6b', type=str, help='|tokenizer和模型文件夹位置|')
 parser.add_argument('--peft_model_path', default='', type=str, help='|peft模型文件夹位置(空则不使用)|')
-parser.add_argument('--model', default='qwen3', type=str, help='|模型类型|')
 parser.add_argument('--system', default='', type=str, help='|追加的系统提示词|')
 parser.add_argument('--think', default=False, type=bool, help='|思维链|')
 parser.add_argument('--temperature', default=0.2, type=float, help='|值越小回答越稳定，0.2-0.8|')
@@ -25,18 +24,17 @@ args.device = 'cpu' if not torch.cuda.is_available() else args.device
 class predict_class:
     def __init__(self, args=args):
         self.think = args.think
-        self.model_type = args.model
-        if args.model == 'qwen3':
-            self.system = ''  # 默认系统提示
-            self.template = ('<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
-                             '<|im_start|>assistant\n')  # 单轮对话提示模版
-            self.template_think = '<think>\n\n<think>\n\n'  # 思维链
-            self.template_history = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
-                                     '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
-            self.bos_token_id = 151644  # <|im_start|>
-            self.eos_token_id = 151645  # <|im_end|>
-            self.pad_token_id = 151643  # <|endoftext|>
-        self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True)
+        self.system = ''  # 默认系统提示
+        self.template = ('<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+                         '<|im_start|>assistant\n')  # 单轮对话提示模版
+        self.template_think = '<think>\n\n<think>\n\n'  # 思维链
+        self.template_history = ('{output_add}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
+                                 '<|im_start|>assistant\n')  # 多轮对话追加的提示模版
+        self.bos_token_id = 151644  # <|im_start|>
+        self.eos_token_id = 151645  # <|im_end|>
+        self.pad_token_id = 151643  # <|endoftext|>
+        self.tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True,
+                                                                    padding_side='left')
         self.model = transformers.AutoModelForCausalLM.from_pretrained(args.model_path, trust_remote_code=True,
                                                                        torch_dtype=torch.float16).eval()
         if os.path.exists(args.peft_model_path):

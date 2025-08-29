@@ -5,18 +5,11 @@
 >```
 >pip install transformers peft==0.6 transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
 >```
-### *，模型下载
-#### Baichuan2
->Baichuan2官方项目：https://github.com/baichuan-inc/Baichuan2
-#### Chinese-LLaMA-Alpaca-2
->LLaMA2官方项目：https://github.com/ymcui/Chinese-LLaMA-Alpaca-2
-#### Qwen
->Qwen官方项目：https://github.com/QwenLM/Qwen
-#### Qwen2
->Qwen2官方项目：https://github.com/QwenLM/Qwen2
-#### 知识库检索编码模型
+### 模型下载
+>hf-mirror: https://hf-mirror.com/collections/Qwen/qwen25-vl-6795ffac22b334a837c0f9a5  
+### 知识库检索编码模型
 >shibing624/text2vec-bge-large-chinese(1.2G)：https://huggingface.co/shibing624/text2vec-bge-large-chinese
-#### 下载方法
+### 下载方法
 >```
 >sudo apt-get install git-lfs：linux安装git-lfs。windows安装git时自带
 >git lfs install：启用lfs。不使用lfs无法下载大文件
