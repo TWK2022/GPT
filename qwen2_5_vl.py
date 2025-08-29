@@ -159,10 +159,10 @@ class predict_class:
 if __name__ == '__main__':
     text = f'根据图片找到物体的零件名称、材料、表面处理，没有找到为无。'
     system = ('''你是一个机加工工程师，需要你识别图纸中的信息。\n
-    提示：零件名称、材料、表面处理、料号、项目编号、类别号不要混淆；没有找到为无。\n
-    你要严格按照格式回答。\n回答格式：{"零件名称":零件名称,"材料":材料,"表面处理":表面处理}''')
+    提示：零件名称、材料、表面处理、热处理、料号、项目编号、类别号不要混淆；没有找到为无。\n
+    你要严格按照格式回答。\n回答格式：{"零件名称":零件名称,"材料":材料,"表面处理":表面处理,"热处理":热处理}''')
     model_dir = r'Qwen2.5-VL-3B-Instruct'
     peft_dir = r'peft_last'
     model = predict_class(model_dir, peft_dir)
-    result = model([text, text], ['dataset/demo.png', 'dataset/demo.png'], [system, system])
+    result = model([text, text], ['a.jpg', 'b.jpg'], [system, system])
     print(result)
