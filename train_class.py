@@ -169,7 +169,7 @@ class train_class:
                     torch.save({'epoch_finished': epoch, 'optimizer_state_dict': self.optimizer.state_dict(),
                                 'val_loss': val_loss, 'standard': val_loss}, f'{args.save_path}/last.pt')
                     if args.local_rank == 0:  # 日志
-                        info = (f'| best_model | val_loss:{val_loss:.4f} |')
+                        info = (f'| epoch:{epoch} | val_loss:{val_loss:.4f} |')
                         print(info) if args.print_info else None
                         logging.info(info) if args.log else None
                 # wandb
