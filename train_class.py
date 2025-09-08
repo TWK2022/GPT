@@ -1,5 +1,6 @@
 import os
 import cv2
+import tqdm
 import json
 import math
 import peft
@@ -123,7 +124,7 @@ class train_class:
                 print(info)
             model.train()
             train_loss = 0  # 记录损失
-            for index, input_dict in enumerate(self.train_dataloader):
+            for index, input_dict in tqdm.tqdm(enumerate(self.train_dataloader), total=len(self.data_dict['train'])):
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 if args.amp:
@@ -162,15 +163,11 @@ class train_class:
                 self.model_dict['train_loss'] = train_loss
                 self.model_dict['val_loss'] = val_loss
                 if epoch % args.save_epoch == 0 or epoch == args.epoch:
-                    self.model_dict['model'].save_pretrained(args.save_path)  # 保存peft模型
+                    save_path = f'peft_{epoch}_{train_loss:.4f}_{val_loss:.2f}'
+                    self.model_dict['standard'] = val_loss
+                    self.model_dict['model'].save_pretrained(save_path)  # 保存peft模型
                     torch.save({'epoch_finished': epoch, 'optimizer_state_dict': self.optimizer.state_dict(),
                                 'val_loss': val_loss, 'standard': val_loss}, f'{args.save_path}/last.pt')
-                if val_loss <= self.model_dict['standard'] and val_loss <= 1:
-                    save_best = f'peft_{epoch}_{val_loss:.2f}'
-                    self.model_dict['standard'] = val_loss
-                    self.model_dict['model'].save_pretrained(save_best)  # 保存peft模型
-                    torch.save({'epoch_finished': epoch, 'optimizer_state_dict': self.optimizer.state_dict(),
-                                'val_loss': val_loss, 'standard': val_loss}, f'{save_best}/last.pt')
                     if args.local_rank == 0:  # 日志
                         info = (f'| best_model | val_loss:{val_loss:.4f} |')
                         print(info) if args.print_info else None
@@ -190,7 +187,7 @@ class train_class:
         with torch.no_grad():
             model = self.model_dict['model'].eval()
             val_loss = 0
-            for index, input_dict in enumerate(self.val_dataloader):
+            for index, input_dict in tqdm.tqdm(enumerate(self.val_dataloader), total=len(self.data_dict['val'])):
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 pred_batch = model(**input_dict)
