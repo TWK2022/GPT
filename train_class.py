@@ -124,7 +124,8 @@ class train_class:
                 print(info)
             model.train()
             train_loss = 0  # 记录损失
-            for index, input_dict in tqdm.tqdm(enumerate(self.train_dataloader), total=len(self.data_dict['train'])):
+            for index, input_dict in tqdm.tqdm(enumerate(self.train_dataloader),
+                                               total=len(self.data_dict['train']) // args.batch // args.device_number):
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 if args.amp:
@@ -187,7 +188,8 @@ class train_class:
         with torch.no_grad():
             model = self.model_dict['model'].eval()
             val_loss = 0
-            for index, input_dict in tqdm.tqdm(enumerate(self.val_dataloader), total=len(self.data_dict['val'])):
+            for index, input_dict in tqdm.tqdm(enumerate(self.val_dataloader),
+                                               total=len(self.data_dict['val']) // args.batch):
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 pred_batch = model(**input_dict)
