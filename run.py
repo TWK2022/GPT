@@ -14,6 +14,7 @@ from train_class import train_class
 # -------------------------------------------------------------------------------------------------------------------- #
 parser = argparse.ArgumentParser(description='|大模型微调:peft模型训练|')
 parser.add_argument('--log', default=True, type=bool, help='|日志|')
+parser.add_argument('--tqdm', default=True, type=bool, help='|每轮进度条|')
 parser.add_argument('--print_info', default=True, type=bool, help='|打印信息|')
 parser.add_argument('--wandb', default=False, type=bool, help='|wandb可视化|')
 parser.add_argument('--data_path', default='dataset/data_demo.json', type=str, help='|数据位置|')
