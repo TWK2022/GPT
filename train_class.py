@@ -124,8 +124,9 @@ class train_class:
                 print(info)
             model.train()
             train_loss = 0  # 记录损失
-            for index, input_dict in tqdm.tqdm(enumerate(self.train_dataloader),
-                                               total=len(self.data_dict['train']) // args.batch // args.device_number):
+            if args.local_rank == 0 and args.tqdm:
+                tqdm_show = tqdm.tqdm(iterable=None, total=len(self.data_dict['train']), mininterval=0.2)
+            for index, input_dict in enumerate(self.train_dataloader):
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 if args.amp:
@@ -144,6 +145,10 @@ class train_class:
                     self.optimizer.zero_grad()
                 train_loss += loss_batch.item()  # 记录损失
                 self.optimizer = self.optimizer_adjust(self.optimizer)  # 调整学习率
+                # tqdm
+                if args.local_rank == 0 and args.tqdm:
+                    tqdm_show.set_postfix({'loss': loss_batch.item()})
+                    tqdm_show.update(args.device_number * args.batch)
             # 计算平均损失
             train_loss /= index + 1
             # 日志
@@ -188,6 +193,8 @@ class train_class:
         with torch.no_grad():
             model = self.model_dict['model'].eval()
             val_loss = 0
+            if args.tqdm:
+                tqdm_show = tqdm.tqdm(iterable=None, total=len(self.data_dict['val']), mininterval=0.2)
             for index, input_dict in tqdm.tqdm(enumerate(self.val_dataloader),
                                                total=len(self.data_dict['val']) // args.batch):
                 for key in input_dict.keys():
@@ -195,6 +202,10 @@ class train_class:
                 pred_batch = model(**input_dict)
                 loss_batch = pred_batch.loss  # 当传入labels时模型内部会自动计算损失
                 val_loss += loss_batch.item()
+                # tqdm
+                if args.tqdm:
+                    tqdm_show.set_postfix({'loss': loss_batch.item()})
+                    tqdm_show.update(args.batch)
             # 计算指标
             val_loss /= (index + 1)
             # 日志
