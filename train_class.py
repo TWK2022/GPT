@@ -52,7 +52,7 @@ class train_class:
             processor = None
             tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True,
                                                                    use_fast=False)
-        if os.path.exists(args.weight_path):  # 加载已有peft
+        if os.path.exists(f'{args.weight_path}/last.pt'):  # 加载已有peft
             model = peft.PeftModel.from_pretrained(model, args.weight_path, is_trainable=True)
             model_dict = torch.load(f'{args.weight_path}/last.pt', map_location='cpu', weights_only=False)
             if args.weight_again:
@@ -163,26 +163,24 @@ class train_class:
                 val_loss = self.validation()
             # 保存
             if args.local_rank == 0:  # 分布式时只保存一次
-                self.model_dict['model'] = model.module if args.distributed else model
-                self.model_dict['epoch_finished'] = epoch
-                self.model_dict['optimizer_state_dict'] = self.optimizer.state_dict()
-                self.model_dict['train_loss'] = train_loss
-                self.model_dict['val_loss'] = val_loss
                 if epoch % args.save_epoch == 0 or epoch == args.epoch:
                     save_path = f'peft_{epoch}_{train_loss:.4f}_{val_loss:.2f}'
+                    self.model_dict['model'] = model.module if args.distributed else model
+                    self.model_dict['epoch_finished'] = epoch
+                    self.model_dict['optimizer_state_dict'] = self.optimizer.state_dict()
+                    self.model_dict['train_loss'] = train_loss
+                    self.model_dict['val_loss'] = val_loss
                     self.model_dict['standard'] = val_loss
                     self.model_dict['model'].save_pretrained(save_path)  # 保存peft模型
                     torch.save({'epoch_finished': epoch, 'optimizer_state_dict': self.optimizer.state_dict(),
-                                'val_loss': val_loss, 'standard': val_loss}, f'{args.save_path}/last.pt')
-                    if args.local_rank == 0:  # 日志
-                        info = (f'| epoch:{epoch} | val_loss:{val_loss:.4f} |')
-                        print(info) if args.print_info else None
-                        logging.info(info) if args.log else None
+                                'val_loss': val_loss, 'standard': val_loss}, f'{save_path}/last.pt')
+                    # 日志
+                    info = (f'| epoch:{epoch} | val_loss:{val_loss:.4f} |')
+                    print(info) if args.print_info else None
+                    logging.info(info) if args.log else None
                 # wandb
                 if args.wandb:
                     wandb_log = {}
-                    if epoch == 0:
-                        wandb_log.update({f'image/train_image': self.wandb_image_list})
                     wandb_log.update({'metric/train_loss': train_loss,
                                       'metric/val_loss': val_loss})
                     args.wandb_run.log(wandb_log)
