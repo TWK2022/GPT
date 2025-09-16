@@ -26,6 +26,9 @@ class train_class:
         self.model_dict = self.model_load()  # 模型
         self.model_dict['model'] = self.model_dict['model'].to(args.device, non_blocking=args.latch)  # 设备
         self.data_dict = self.data_load()  # 数据
+        if self.args.epoch == 0:
+            self.args.epoch = max(int(3e4 // len(self.data_dict['train'])), 3)
+            print(f'| INFO | 训练总轮数: {self.args.epoch}')
         self.train_dataloader, self.val_dataloader, self.train_dataset = self.dataloader_load()  # 数据处理器
         self.optimizer, self.optimizer_adjust = self.optimizer_load()  # 学习率、学习率调整
         if args.distributed:  # 分布式初始化

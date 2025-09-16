@@ -25,7 +25,7 @@ parser.add_argument('--model', default='qwen2.5_vl', type=str, help='|模型选�
 parser.add_argument('--model_path', default='Qwen2.5-VL-3B-Instruct', type=str, help='|原模型位置|')
 parser.add_argument('--save_epoch', default=1, type=int, help='|每x轮和最后一轮保存peft模型|')
 parser.add_argument('--max_length', default=1500, type=int, help='|模型输入+输出最大长度|')
-parser.add_argument('--epoch', default=5, type=int, help='|训练总轮数(包含之前已训练轮数)|')
+parser.add_argument('--epoch', default=0, type=int, help='|训练总轮数(包含之前已训练轮数)，0为自动|')
 parser.add_argument('--batch', default=1, type=int, help='|训练批量大小，分布式时为总批量|')
 parser.add_argument('--warmup_ratio', default=0.01, type=float, help='|预热训练步数占总步数比例，最少5步，基准为0.01|')
 parser.add_argument('--lr_start', default=2e-5, type=float, help='|初始学习率，adam算法，批量小时要减小，基准为2e-5|')
