@@ -266,16 +266,7 @@ class torch_dataset(torch.utils.data.Dataset):
         self.tokenizer = tokenizer
         self.processor = processor
         self.max_length = args.max_length
-        if self.model == 'qwen3':
-            self.template = ('<|im_start|>system\n{system}<|im_end|>\n<|im_start|>user\n{input}<|im_end|>\n'
-                             '<|im_start|>assistant\n')  # 单轮对话提示模版
-            self.template_think = '<think>\n\n<think>\n\n'  # 思维链
-            self.template_output = ('{output}<|im_end|>\n')  # 多轮对话追加的提示模版
-            self.bos_token_id = 151644  # <|im_start|>
-            self.eos_token_id = 151645  # <|im_end|>
-            self.pad_token_id = 151643  # <|endoftext|>
-            self.ignore_index = -100
-        elif self.model == 'qwen2.5_vl':
+        if self.model == 'qwen2.5_vl':
             self.template = ('<|im_start|>system\n{system}<|im_end|>\n'
                              '<|im_start|>user\n{image_template}{text_input}<|im_end|>\n'
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
@@ -296,7 +287,7 @@ class torch_dataset(torch.utils.data.Dataset):
         text_output = data_dict['output']  # 回答
         image_input = data_dict.get('image_path', '')  # 图片
         if not image_input:  # 文本预测
-            prompt_input = self.template.format(system=system, input=text_input) + self.template_think
+            prompt_input = self.template.format(system=system, image_template='', text_input=text_input)
             prompt_output = self.template_output.format(output=text_output)
             encode_input = self.tokenizer.encode(prompt_input, add_special_tokens=False)
             encode_output = self.tokenizer.encode(prompt_output, add_special_tokens=False)
