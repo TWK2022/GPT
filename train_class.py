@@ -55,9 +55,9 @@ class train_class:
             processor = None
             tokenizer = transformers.AutoTokenizer.from_pretrained(args.model_path, trust_remote_code=True,
                                                                    use_fast=False)
-        if os.path.exists(f'{args.weight_path}/last.pt'):  # 加载已有peft
+        if os.path.exists(f'{args.weight_path}/train_param.pt'):  # 加载已有peft
             model = peft.PeftModel.from_pretrained(model, args.weight_path, is_trainable=True)
-            model_dict = torch.load(f'{args.weight_path}/last.pt', map_location='cpu', weights_only=False)
+            model_dict = torch.load(f'{args.weight_path}/train_param.pt', map_location='cpu', weights_only=False)
             if args.weight_again:
                 model_dict.update({'epoch_finished': 0, 'optimizer_state_dict': None, 'standard': 1})
         else:  # 创建新peft
