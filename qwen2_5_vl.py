@@ -41,7 +41,7 @@ class predict_class:
         self.template = ('<|im_start|>system\n{system}<|im_end|>\n'
                          '<|im_start|>user\n{image_template}{text_input}<|im_end|>\n'
                          '<|im_start|>assistant\n')
-        self.system_template = ('You are a helpful assistant.')
+        self.system_template = ''
         self.image_template = '<|vision_start|><|image_pad|><|vision_end|>'
         self.generation_config = {'max_new_tokens': 128}
         # flask
@@ -157,9 +157,9 @@ class predict_class:
 
 # -------------------------------------------------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    text = f'根据图片找到物体的零件名称、图号、材料，没有找到为无。'
-    system = '''你是一个机加工工程师，需要你识别图纸中的信息。\n提示：零件名称、图号(型号)、材料、料号、项目编号、类别号不要混淆，没有找到为无。\n你要严格按照格式回答。\n回答格式：{"零件名称":零件名称,"图号":图号,"材料":材料}'''
-    model_dir = r'../model/vllm/Qwen2.5-VL-3B-Instruct'
+    text = f'精简描述这张图片是什么'
+    system = '''严格按照要求回答。'''
+    model_dir = r'Qwen2.5-VL-3B-Instruct'
     peft_dir = r'peft_last'
     model = predict_class(model_dir, peft_dir)
     result = model([text, text], ['a.jpg', 'b.jpg'], [system, system])
