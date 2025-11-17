@@ -3,7 +3,8 @@
 ### 1，环境
 >torch：https://pytorch.org/get-started/previous-versions/
 >```
->pip install transformers peft==0.6 transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple
+>pip install wandb transformers peft==0.6 transformers_stream_generator -i https://pypi.tuna.tsinghua.edu.cn/simple  
+>pip install flask pymupdf -i https://pypi.tuna.tsinghua.edu.cn/simple  
 >```
 ### 模型下载
 >hf-mirror: https://hf-mirror.com/collections/Qwen/qwen25-vl-6795ffac22b334a837c0f9a5  
