@@ -279,7 +279,7 @@ class torch_dataset(torch.utils.data.Dataset):
             self.template = ('<|im_start|>system\n{system}<|im_end|>\n'
                              '<|im_start|>user\n{image_template}{text_input}<|im_end|>\n'
                              '<|im_start|>assistant\n')  # 单轮对话提示模版
-            self.template_output = ('{output}<|im_end|>\n')  # 多轮对话追加的提示模版
+            self.template_output = '{output}<|im_end|>\n'  # 多轮对话追加的提示模版
             self.image_template = '<|vision_start|><|image_pad|><|vision_end|>'
             self.bos_token_id = 151644  # <|im_start|>
             self.eos_token_id = 151645  # <|im_end|>
@@ -291,7 +291,7 @@ class torch_dataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         data_dict = self.data[index]
-        system = data_dict.get(data_dict['system'], '')  # 系统提示
+        system = data_dict.get('system', '')  # 系统提示
         text_input = data_dict['input']  # 问题
         text_output = data_dict['output']  # 回答
         image_input = data_dict.get('image_path', '')  # 图片
