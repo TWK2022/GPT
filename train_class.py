@@ -125,7 +125,7 @@ class train_class:
             if args.local_rank == 0 and args.print_info:
                 info = f'-----------------------epoch:{epoch}-----------------------'
                 print(info)
-            model.train()
+            model = model.train()
             train_loss = 0  # 记录损失
             if args.local_rank == 0 and args.tqdm:
                 tqdm_show = tqdm.tqdm(iterable=None, total=len(self.data_dict['train']), mininterval=0.2)
@@ -133,7 +133,7 @@ class train_class:
                 for key in input_dict.keys():
                     input_dict[key] = input_dict[key].to(args.device, non_blocking=args.latch)
                 if args.amp:
-                    with torch.cuda.amp.autocast():
+                    with torch.amp.autocast(device_type=args.device):
                         pred_batch = model(**input_dict)
                         loss_batch = pred_batch.loss  # 当传入labels时模型内部会自动计算损失
                     args.amp.scale(loss_batch).backward()
@@ -150,7 +150,7 @@ class train_class:
                 self.optimizer = self.optimizer_adjust(self.optimizer)  # 调整学习率
                 # tqdm
                 if args.local_rank == 0 and args.tqdm:
-                    tqdm_show.set_postfix({'loss': loss_batch.item()})
+                    tqdm_show.set_postfix({'loss': loss_batch.detach().item()})
                     tqdm_show.update(args.device_number * args.batch)
             # 计算平均损失
             train_loss /= index + 1
@@ -176,7 +176,7 @@ class train_class:
                     self.model_dict['standard'] = val_loss
                     self.model_dict['model'].save_pretrained(save_path)  # 保存peft模型
                     torch.save({'epoch_finished': epoch, 'optimizer_state_dict': self.optimizer.state_dict(),
-                                'val_loss': val_loss, 'standard': val_loss}, f'{save_path}/last.pt')
+                                'val_loss': val_loss, 'standard': val_loss}, f'{save_path}/train_param.pt')
                     # 日志
                     info = (f'| epoch:{epoch} | val_loss:{val_loss:.4f} |')
                     print(info) if args.print_info else None
