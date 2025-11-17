@@ -146,7 +146,7 @@ class train_class:
                     loss_batch.backward()
                     self.optimizer.step()
                     self.optimizer.zero_grad()
-                train_loss += loss_batch.item()  # 记录损失
+                train_loss += loss_batch.detach().item()  # 记录损失
                 self.optimizer = self.optimizer_adjust(self.optimizer)  # 调整学习率
                 # tqdm
                 if args.local_rank == 0 and args.tqdm:
